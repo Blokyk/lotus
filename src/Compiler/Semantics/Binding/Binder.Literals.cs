@@ -3,10 +3,10 @@ using Lotus.Syntax.Visitors;
 
 namespace Lotus.Semantics.Binding;
 
-internal partial class Binder : IValueVisitor<BoundExpression>
+partial class Binder : IValueVisitor<BoundExpression>
 {
     BoundExpression IValueVisitor<BoundExpression>.Default(ValueNode node)
-        => throw new NotImplementedException("No binder found for " + node.GetType().Name + "s");
+        => NoBinderFor(node);
 
     BoundExpression IValueVisitor<BoundExpression>.Visit(BoolNode node) => new BoundLiteral(node, BuiltinTypes.Bool);
     BoundExpression IValueVisitor<BoundExpression>.Visit(StringNode node) => new BoundLiteral(node, BuiltinTypes.String);
