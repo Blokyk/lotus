@@ -17,6 +17,4 @@ public class NamespaceInfo(string name)
 
     public NamespaceInfo? ContainingNamespace { get; set; } = null;
     NamespaceInfo? IMemberSymbol<NamespaceInfo?>.ContainingSymbol => ContainingNamespace;
-
-    public override T Accept<T>(ISymbolVisitor<T> visitor) => visitor.Visit(this);
 }

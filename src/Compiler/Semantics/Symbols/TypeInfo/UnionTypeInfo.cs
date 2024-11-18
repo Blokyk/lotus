@@ -11,6 +11,4 @@ public sealed class UnionTypeInfo : TypeInfo
     public UnionTypeInfo(List<TypeInfo> types) {
         Types = types;
     }
-
-    public override T Accept<T>(ISymbolVisitor<T> visitor) => visitor.Visit(this);
 }

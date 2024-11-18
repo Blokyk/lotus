@@ -13,6 +13,4 @@ public sealed class StructTypeInfo(string name)
 
     public List<FieldInfo> Fields { get; } = [];
     IEnumerable<FieldInfo> IContainerSymbol<FieldInfo>.Children() => Fields;
-
-    public override T Accept<T>(ISymbolVisitor<T> visitor) => visitor.Visit(this);
 }
