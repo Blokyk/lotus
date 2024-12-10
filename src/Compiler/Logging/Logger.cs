@@ -130,16 +130,19 @@ public static class Logger
 
         switch (error) {
             case UnexpectedError eUnx:
-                markupBuilder.AppendLine(FormatUnexpected(eUnx)).AppendLine();
+                markupBuilder.AppendLine(FormatUnexpected(eUnx));
                 break;
             case DuplicateSymbol eDup:
-                markupBuilder.AppendLine(FormatDuplicateSymbol(eDup)).AppendLine();
+                markupBuilder.AppendLine(FormatDuplicateSymbol(eDup));
                 break;
             case UnknownSymbol eUnk:
-                markupBuilder.AppendLine(FormatUnknownSymbol(eUnk)).AppendLine();
+                markupBuilder.Append(FormatUnknownSymbol(eUnk));
+                break;
+            case UnexpectedSymbolKind eUnxKind:
+                markupBuilder.Append(FormatUnexpectedKind(eUnxKind));
                 break;
             default:
-                markupBuilder.AppendLine(FormatGeneric(error)).AppendLine();
+                markupBuilder.AppendLine(FormatGeneric(error));
                 break;
         }
 
@@ -373,12 +376,27 @@ public static class Logger
                 sb.AppendLine();
                 sb.PushForeground(TextColor.Green);
                 sb.AppendLine($"Hint: '{targetName}' conflicts with symbol from here: ");
-                sb.AppendLine(FormatLocation(existingLocation, scp.Source), TextColor.Green);
+                // fixme: for some reason, the coloring doesn't apply here
+                sb.Append(FormatLocation(existingLocation, scp.Source));
                 sb.PopBackground();
             }
         }
 
         return sb;
+    }
+
+    private static string JoinSymbolKinds(ImmutableArray<string> kinds) {
+        switch (kinds) {
+            case []:
+                throw new InvalidOperationException("we shouldn't have an empty list of expected kinds...");
+            case [var singleKind]:
+                return "a " + singleKind;
+            case [..var firstFewKinds, var lastKind]:
+                return "a "
+                  + String.Join(", a ", firstFewKinds)
+                  + ", or a "
+                  + lastKind;
+        }
     }
 
     internal static MarkupBuilder FormatUnknownSymbol(UnknownSymbol unkError) {
@@ -394,24 +412,25 @@ public static class Logger
         else
             sb.Append(" in current scope");
 
-        sb.Append('.');
+        sb.Append(". Expected ")
+          .Append(JoinSymbolKinds(unkError.ExpectedKinds))
+          .AppendLine('.')
+          .Append(FormatLocation(unkError.Location));
 
-        switch (unkError.ExpectedKinds) {
-            case []:
-                break;
-            case [var onlyKind]:
-                sb.Append(" Expected a ").Append(onlyKind).Append(" name.");
-                break;
-            case [..var kinds, var lastKind]:
-                sb.Append(" Expected the name of a ")
-                  .Append(String.Join(", a ", kinds))
-                  .Append(" or a ").Append(lastKind).Append('.');
-                break;
-        }
+        return sb;
+    }
 
-        sb.AppendLine();
+    internal static MarkupBuilder FormatUnexpectedKind(UnexpectedSymbolKind unxEror) {
+        var sb = new MarkupBuilder();
 
-        sb.AppendLine(FormatLocation(unkError.Location));
+        sb.Append("Expected ")
+          .Append(JoinSymbolKinds(unxEror.ExpectedKinds))
+          .Append(", but got a ")
+          .Append(SymbolUtils.GetKindString(unxEror.TargetSymbol))
+          .Append(" name.")
+          .AppendLine();
+
+        sb.Append(FormatLocation(unxEror.Location));
 
         return sb;
     }
@@ -447,7 +466,7 @@ public static class Logger
         sb.PushForeground(TextColor.Blue);
 
         if (src is not null)
-            sb.AppendLine(FormatTextAt(location, src));
+            sb.Append(FormatTextAt(location, src));
 
         sb.PopForeground();
 
