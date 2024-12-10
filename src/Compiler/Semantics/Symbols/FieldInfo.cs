@@ -1,6 +1,6 @@
 namespace Lotus.Semantics;
 
-public class FieldInfo(string name, TypeInfo type, TypeInfo containingType)
+public sealed class FieldInfo(string name, TypeInfo type, TypeInfo containingType)
     : SymbolInfo
     , INamedSymbol
     , IMemberSymbol<StructTypeInfo>
@@ -8,7 +8,12 @@ public class FieldInfo(string name, TypeInfo type, TypeInfo containingType)
     public string Name { get; } = name;
     public TypeInfo Type { get; } = type;
 
-    public TypeInfo ContainingType { get; } = containingType;
+    // fixme: change to some other type (specific type to represent const vals?) when binding is done
+    public object? DefaultValue { get; init; }
+    [MemberNotNullWhen(true, nameof(DefaultValue))]
+    public bool HasDefaultValue => DefaultValue is not null;
+
+    public TypeInfo FromStruct { get; } = containingType;
     StructTypeInfo IMemberSymbol<StructTypeInfo>.ContainingSymbol => throw new NotImplementedException();
 
     public override T Accept<T>(ISymbolVisitor<T> visitor)
