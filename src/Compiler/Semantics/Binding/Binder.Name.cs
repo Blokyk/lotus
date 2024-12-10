@@ -6,5 +6,6 @@ namespace Lotus.Semantics.Binding;
 partial class Binder : IValueVisitor<BoundExpression>
 {
     BoundExpression IValueVisitor<BoundExpression>.Visit(NameNode node) {
+        throw new NotImplementedException();
     }
 }

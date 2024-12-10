@@ -1,4 +1,5 @@
 using System.IO;
+using Lotus.Semantics;
 using Lotus.Syntax;
 
 namespace Lotus.Error;
@@ -127,30 +128,65 @@ public static class Logger
     internal static MarkupBuilder Format(LotusError error) {
         var markupBuilder = new MarkupBuilder();
 
-        if (error is UnexpectedError eUnx) {
-            markupBuilder.AppendLine(FormatUnexpected(eUnx)).AppendLine();
-        } else if (error is IContextualized eCtx) {
-            // FormatUnexpected already takes care of context for us, so we only do it
-            // if the error is not UnexpectedError
-            markupBuilder.AppendLine(FormatContextualized(eCtx)).AppendLine();
-        }
-
-        if (error is ILocalized eLoc) {
-            // todo(logging): Allow passing a short message to be displayed in the sample
-            markupBuilder.AppendLine(FormatLocalized(eLoc));
+        switch (error) {
+            case UnexpectedError eUnx:
+                markupBuilder.AppendLine(FormatUnexpected(eUnx)).AppendLine();
+                break;
+            case DuplicateSymbol eDup:
+                markupBuilder.AppendLine(FormatDuplicateSymbol(eDup)).AppendLine();
+                break;
+            case UnknownSymbol eUnk:
+                markupBuilder.AppendLine(FormatUnknownSymbol(eUnk)).AppendLine();
+                break;
+            default:
+                markupBuilder.AppendLine(FormatGeneric(error)).AppendLine();
+                break;
         }
 
         if (error.Message != null) {
-            markupBuilder.AppendLine("\n" + error.Message);
+            markupBuilder.AppendLine().AppendLine(error.Message);
         }
 
         if (error.ExtraNotes != null) {
-            markupBuilder.AppendLine("\nNote: " + error.ExtraNotes);
+            markupBuilder.Append("\nNote: ").AppendLine(error.ExtraNotes);
         }
 
         markupBuilder.AppendLine();
 
         return markupBuilder;
+    }
+
+    internal static MarkupBuilder FormatGeneric(LotusError error) {
+        var sb = new MarkupBuilder();
+
+        if (error is IContextualized eCtx)
+            sb.AppendLine(FormatContextualized(eCtx));
+
+        if (error is ILocalized eLoc)
+            sb.AppendLine(FormatLocalized(eLoc));
+
+        return sb;
+    }
+
+    internal static MarkupBuilder FormatLocalized(ILocalized localizedErr) {
+        var sb = new MarkupBuilder();
+
+        var errorLoc = localizedErr.Location;
+
+        // todo(logging): Allow passing a short message to be displayed in the sample
+        if (TryGetProvider(errorLoc, out var scp))
+            sb.AppendLine(FormatLocation(errorLoc, scp.Source));
+        else if (localizedErr is LotusError error && TryGetSourceCodeFromError(error, out var src))
+            sb.AppendLine(FormatLocation(errorLoc, src));
+        else
+            sb
+                .Append("Error happened at location ")
+                .Append(errorLoc)
+                .Append(", but unable to display the source code.");
+
+        sb.AppendLine();
+
+        return sb;
     }
 
     internal static MarkupBuilder FormatUnexpected(UnexpectedError error) {
@@ -186,8 +222,14 @@ public static class Logger
                     case ExpressionKind.NotEq:
                         sb.Append("non-equality operator");
                         break;
+                    case ExpressionKind.Less:
+                        sb.Append("less-than operator");
+                        break;
                     case ExpressionKind.LessOrEq:
                         sb.Append("less-or-equal operator");
+                        break;
+                    case ExpressionKind.Greater:
+                        sb.Append("greater-than operator");
                         break;
                     case ExpressionKind.GreaterOrEq:
                         sb.Append("greater-or-equal operator");
@@ -301,22 +343,93 @@ public static class Logger
             _ => sb
         );
 
+        sb.AppendLine().AppendLine(FormatLocalized(error));
+
+        return sb;
+    }
+
+    internal static MarkupBuilder FormatDuplicateSymbol(DuplicateSymbol dupError) {
+        var sb = new MarkupBuilder();
+
+        var targetName
+            = dupError.TargetSymbol is INamedSymbol { Name: var name }
+            ? name
+            : dupError.TargetSymbol.ToString();
+
+        sb.Append($"Symbol '{targetName}'");
+
+        if (dupError.ContainingSymbol is INamedSymbol { Name: var containerName }) {
+            sb.AppendLine($" is a duplicate inside of '{containerName}'.");
+        } else {
+            sb.AppendLine(" is a duplicate.");
+        }
+
+        sb
+            .AppendLine()
+            .AppendLine(FormatLocation(dupError.Location));
+
+        if (dupError.ExistingSymbol is ILocalized { Location: var existingLocation }) {
+            if (TryGetProvider(existingLocation, out var scp)) {
+                sb.AppendLine();
+                sb.PushForeground(TextColor.Green);
+                sb.AppendLine($"Hint: '{targetName}' conflicts with symbol from here: ");
+                sb.AppendLine(FormatLocation(existingLocation, scp.Source), TextColor.Green);
+                sb.PopBackground();
+            }
+        }
+
+        return sb;
+    }
+
+    internal static MarkupBuilder FormatUnknownSymbol(UnknownSymbol unkError) {
+        var sb = new MarkupBuilder();
+
+        sb
+            .Append("Couldn't find any symbol named '")
+            .Append(unkError.SymbolName)
+            .Append("'");
+
+        if (unkError.ContainingSymbol is INamedSymbol { Name: var containerName })
+            sb.Append(" in symbol '").Append(containerName);
+        else
+            sb.Append(" in current scope");
+
+        sb.Append('.');
+
+        switch (unkError.ExpectedKinds) {
+            case []:
+                break;
+            case [var onlyKind]:
+                sb.Append(" Expected a ").Append(onlyKind).Append(" name.");
+                break;
+            case [..var kinds, var lastKind]:
+                sb.Append(" Expected the name of a ")
+                  .Append(String.Join(", a ", kinds))
+                  .Append(" or a ").Append(lastKind).Append('.');
+                break;
+        }
+
+        sb.AppendLine();
+
+        sb.AppendLine(FormatLocation(unkError.Location));
+
         return sb;
     }
 
     internal static MarkupBuilder FormatContextualized(IContextualized error)
-        => new("Error happened in " + error.In);
+        => new("Error happened in " + error.In + "\n");
 
-    internal static MarkupBuilder FormatLocalized(ILocalized error) {
+    internal static MarkupBuilder FormatLocation(LocationRange location)
+        => FormatLocation(location, TryGetProvider(location, out var scp) ? scp.Source : null);
+
+    internal static MarkupBuilder FormatLocation(LocationRange location, SourceCode? src) {
         var sb = new MarkupBuilder();
-        var location = error.Location;
         var fileInfo = new FileInfo(location.filename);
 
         var relPath = "";
 
-        if (fileInfo.Exists) {
+        if (fileInfo.Exists)
             relPath = Path.GetRelativePath(Directory.GetCurrentDirectory(), fileInfo.FullName);
-        }
 
         // todo(log-format): Ideas for formatting the filename :
         //      - Underline the path and put a '@' prefix
@@ -333,48 +446,65 @@ public static class Logger
 
         sb.PushForeground(TextColor.Blue);
 
-        sb.Append(FormatTextAt(location, error));
+        if (src is not null)
+            sb.AppendLine(FormatTextAt(location, src));
 
         sb.PopForeground();
 
         return sb;
     }
 
-    private static string FormatTextAt(LocationRange location, in ILocalized error) {
-        if (providers.TryGetValue(location.filename, out var sourceCodeProvider)) {
-            return FormatTextAt(location, sourceCodeProvider.Source);
+    private static bool TryGetProvider(LocationRange location, [NotNullWhen(true)] out ISourceCodeProvider? scp) {
+        if (providers.TryGetValue(location.filename, out scp))
+            return true;
+
+        if (!File.Exists(location.filename))
+            return false;
+
+        var src = new SourceCode(File.ReadAllLines(location.filename));
+
+        scp = new SourceCodeWrapper(location.filename, src);
+        RegisterSourceProvider(scp);
+        return true;
+    }
+
+    private static bool TryGetSourceCodeFromError(LotusError error, [NotNullWhen(true)] out SourceCode? src) {
+        var srcText = error switch {
+            IValued<Node?> { Value: not null } eNode => ASTUtils.PrintNode(eNode.Value),
+            IValued<Token?> { Value: not null } eToken => ASTUtils.PrintToken(eToken.Value),
+            IValued<string> eString => eString.Value,
+            _ => null,
+        };
+
+        if (srcText is null) {
+            src = default;
+            return false;
         }
 
-        if (File.Exists(location.filename)) {
-            var src = new SourceCode(File.ReadAllLines(location.filename));
+        src = new(srcText);
+        return true;
+    }
 
-            RegisterSourceProvider(new SourceCodeWrapper(location.filename, src));
+    private static string FormatTextAt(LocationRange location, in LotusError error) {
+        if (TryGetProvider(location, out var scp))
+            return FormatTextAt(location, scp.Source);
 
-            return FormatTextAt(location, src);
-        }
-
-        string sourceCode;
-
-        if (error is IValued<Node?> { Value: not null } eNode) {
-            sourceCode = ASTUtils.PrintNode(eNode.Value);
-        } else if (error is IValued<Token?> { Value: not null } eToken) {
-            sourceCode = ASTUtils.PrintToken(eToken.Value);
-        } else if (error is IValued<string> eString) {
-            sourceCode = eString.Value;
-        } else {
-            sourceCode = "";
-        }
-
-        return FormatTextAt(
-                new LocationRange(
+        if (TryGetSourceCodeFromError(error, out var src)) {
+            var newLoc
+                = new LocationRange(
                     firstLine: 1,
-                    lastLine: location.lastLine - location.firstLine + 1,
+                    lastLine: src.RawLines.Length,
                     firstColumn: 1,
-                    lastColumn: location.lastColumn - location.firstColumn + 1,
+                    lastColumn: Int32.MaxValue,
                     filename: location.filename
-                ),
-                new SourceCode(sourceCode)
-            ) + "\nWARNING : This source code is approximated, because no source code could be found for " + location.filename;
+                );
+
+            return FormatTextAt(location, src)
+                + "\nWARNING : This source code is approximated, because no source code could be found for " + location.filename
+                ;
+        }
+
+        return "";
     }
 
     private static string FormatTextAt(LocationRange range, SourceCode source) {

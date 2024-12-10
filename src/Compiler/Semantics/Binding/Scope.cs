@@ -1,51 +1,60 @@
-using System.Collections;
+using Lotus.Syntax;
 
 namespace Lotus.Semantics.Binding;
 
-internal class Scope : IEnumerable<SymbolInfo>
+internal interface IScope {
+    internal Scope Scope { get; }
+}
+
+internal abstract class Scope : IScope
 {
-    private readonly List<SymbolInfo> _symbols = [];
-    private readonly Dictionary<string, INamedSymbol> _namedSymbols = [];
+    public static readonly Scope Empty = new EmptyScope();
+    private sealed class EmptyScope : Scope {
+        public override SymbolInfo? Get(string _) => null;
+    }
 
-    public Scope() {}
+    // fixme: add accessibility checks
+    public abstract SymbolInfo? Get(string name);
 
-    public Scope(SymbolInfo symbol) {
-        switch (symbol) {
-            case NamespaceInfo ns:
-                AddRange(ns.Namespaces);
-                AddRange(ns.Types);
-                break;
-            case StructTypeInfo st:
-                AddRange(st.Fields);
-                break;
-            case EnumTypeInfo en:
-                AddRange(en.Values);
-                break;
+    Scope IScope.Scope => this;
+
+    public SymbolInfo? ResolveQualified(NameNode name)
+        => ResolveQualified(name.Parts.Select(t => t.Representation));
+    public SymbolInfo? ResolveQualified(IEnumerable<string> parts) {
+        SymbolInfo? currSymbol = null;
+
+        var currScope = this;
+        foreach (var part in parts) {
+            currSymbol = currScope.Get(part);
+
+            if (currSymbol is null)
+                return null;
+
+            if (currSymbol is IScope { Scope: var nextScope })
+                currScope = nextScope;
+        }
+
+        return currSymbol;
+    }
+
+    public static Scope From(IScope scoper) => scoper.Scope;
+
+    // todo: maybe special case combining with another CombinedScope
+    // todo: do TryGetCount and check if it's just one, in which case just return the single scope
+    public static Scope Combine(params IEnumerable<Scope> scopes)
+        => new CombinedScope(scopes);
+    // public static Scope Combine(params IEnumerable<IScope> scopes)
+    //     => new CombinedScope(scopes.Select(s => s.Scope));
+    private sealed class CombinedScope(params IEnumerable<Scope> scopes) : Scope
+    {
+        readonly Scope[] _scopes = scopes.ToArray();
+        public override SymbolInfo? Get(string name) {
+            foreach (var scope in _scopes) {
+                if (scope.Get(name) is SymbolInfo found)
+                    return found;
+            }
+
+            return null;
         }
     }
-
-    public void Add(SymbolInfo symbol) {
-        _symbols.Add(symbol);
-
-        if (symbol is INamedSymbol namedSymbol)
-            _namedSymbols.Add(namedSymbol.Name, namedSymbol);
-    }
-
-    public void AddNamespace(NamespaceInfo ns) {
-        AddRange(ns.Namespaces);
-        AddRange(ns.Types);
-    }
-
-    public void AddRange(IEnumerable<SymbolInfo> symbols) {
-        _symbols.AddRange(symbols);
-
-        foreach (var namedSymbol in symbols.OfType<INamedSymbol>())
-            _namedSymbols.Add(namedSymbol.Name, namedSymbol);
-    }
-
-    public bool TryFindName(string name, [NotNullWhen(true)] out INamedSymbol? symbol)
-        => _namedSymbols.TryGetValue(name, out symbol);
-
-    public IEnumerator<SymbolInfo> GetEnumerator() => _symbols.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

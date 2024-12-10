@@ -4,11 +4,11 @@ namespace Lotus.Semantics.Binding;
 
 internal sealed class BoundName : BoundExpression
 {
-    public MemberInfo Info { get; set; }
+    public INamedSymbol Symbol { get; set; }
 
-    public BoundName(NameNode name, MemberInfo info, TypeInfo type)
-        : base(name, type)
+    public BoundName(NameNode name, INamedSymbol symbol)
+        : base(name)
     {
-        Info = info;
+        Symbol = symbol;
     }
 }

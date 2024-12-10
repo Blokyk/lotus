@@ -4,6 +4,10 @@ using System.CommandLine;
 
 using Lotus.Extras;
 using Lotus.Extras.Graphs;
+using Lotus.Semantics;
+using Lotus.Syntax;
+using System.Threading;
+using Lotus.Error;
 
 partial class Program
 {
@@ -79,6 +83,12 @@ partial class Program
             forceOption
         );
 
+        var bindVerb = new Command("bind") {
+            fileArgument
+        };
+
+        bindVerb.SetHandler(BindHandler, fileArgument);
+
         /*
         *   lotus [--force] {silent, print, hash, graph}
         */
@@ -88,6 +98,7 @@ partial class Program
             printVerb,
             hashVerb,
             graphVerb,
+            bindVerb
         };
 
         rootCommand.AddGlobalOption(forceOption);
@@ -109,6 +120,27 @@ partial class Program
             act(g);
             return Task.FromResult(0);
         };
+
+    static Task<int> BindHandler(FileInfo file) {
+        using var stream = GetStreamForFile(file);
+        var tree = new SyntaxTree(stream);
+
+        if (!tree.IsValid) {
+            Logger.PrintAllErrors();
+            return Task.FromResult(1);
+        }
+
+        var sem = new SemanticUnit([tree]);
+
+        if (!sem.IsValid) {
+            Logger.PrintAllErrors();
+            return Task.FromResult(1);
+        }
+
+        Console.WriteLine(sem);
+
+        return Task.FromResult(0);
+    }
 
     static Task<int> PrintHandler(FileInfo file, bool force) {
         // var stream = GetStreamForFile(file);

@@ -1,0 +1,7 @@
+using truc;
+
+namespace std;
+
+enum test {
+    a, b, c, c
+}

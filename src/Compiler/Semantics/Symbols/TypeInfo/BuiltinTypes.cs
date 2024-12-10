@@ -6,21 +6,21 @@ public static class BuiltinTypes
         = new("<unknown>");
 
     public static readonly StructTypeInfo Void
-        = new("void");
+        = new("void", LocationRange.NULL);
     public static readonly StructTypeInfo Bool
-        = new("bool");
+        = new("bool", LocationRange.NULL);
     public static readonly StructTypeInfo String
-        = new("string");
+        = new("string", LocationRange.NULL);
     public static readonly StructTypeInfo Int
-        = new("int");
+        = new("int", LocationRange.NULL);
     public static readonly StructTypeInfo UInt
-        = new("uint");
+        = new("uint", LocationRange.NULL);
     public static readonly StructTypeInfo Long
-        = new("long");
+        = new("long", LocationRange.NULL);
     public static readonly StructTypeInfo ULong
-        = new("ulong");
+        = new("ulong", LocationRange.NULL);
     public static readonly StructTypeInfo Float
-        = new("float");
+        = new("float", LocationRange.NULL);
     public static readonly StructTypeInfo Double
-        = new("double");
+        = new("double", LocationRange.NULL);
 }

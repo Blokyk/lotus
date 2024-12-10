@@ -1,16 +1,26 @@
+using Lotus.Semantics.Binding;
+
 namespace Lotus.Semantics;
 
-public sealed class StructTypeInfo(string name)
-    : TypeInfo
-    , INamedSymbol
-    , IMemberSymbol<NamespaceInfo?>
+public sealed class StructTypeInfo(string name, LocationRange loc)
+    : UserTypeInfo(name, loc)
     , IContainerSymbol<FieldInfo>
+    , IScope
 {
-    public string Name { get; } = name;
+    private Dictionary<string, FieldInfo> _fields = [];
+    public IReadOnlyCollection<FieldInfo> Fields => _fields.Values;
 
-    public NamespaceInfo? ContainingNamespace { get; set; }
-    NamespaceInfo? IMemberSymbol<NamespaceInfo?>.ContainingSymbol => ContainingNamespace;
+    Scope IScope.Scope => throw new NotImplementedException();
+    private sealed class StructScope(StructTypeInfo @this) : Scope {
+        public override SymbolInfo? Get(string name) {
+            if (@this._fields.TryGetValue(name, out var field))
+                return field;
+            return null;
+        }
+    }
 
-    public List<FieldInfo> Fields { get; } = [];
     IEnumerable<FieldInfo> IContainerSymbol<FieldInfo>.Children() => Fields;
+
+    public override T Accept<T>(ISymbolVisitor<T> visitor)
+        => visitor.Visit(this);
 }

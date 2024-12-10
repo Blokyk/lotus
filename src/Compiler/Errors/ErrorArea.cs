@@ -6,15 +6,17 @@ public enum ErrorArea {
     Tokenizer = 1,
     Parser = 2,
     ASTHelper = 4,
-    TypeChecker = 8,
+    Semantics = 8,
+    Binder = 16,
 }
 
 internal static class ErrorAreaExtension
 {
-    public static string ToName(this ErrorArea area)
+    public static string ToDisplayName(this ErrorArea area)
         => area switch {
-            ErrorArea.TypeChecker => "Type checking",
-            ErrorArea.ASTHelper   => "AST Utilities",
+            ErrorArea.Semantics => "Semantic checking",
+            ErrorArea.Binder => "Type checking",
+            ErrorArea.ASTHelper => "AST Utilities",
             _ => Enum.GetName(area) ?? "unknown"
         };
 }
