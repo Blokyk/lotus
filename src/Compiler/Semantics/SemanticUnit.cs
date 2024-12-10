@@ -74,7 +74,7 @@ public class SemanticUnit
         // todo: `from foo import bar, zab` needs specific/synthetic scope
         var combinedImports = Scope.Empty;
 
-        return Scope.Combine(combinedUsings);
+        return Scope.Combine(combinedUsings, combinedImports);
     }
 
     private NamespaceInfo? GetNamespaceForUsing(UsingNode usingNode) {
