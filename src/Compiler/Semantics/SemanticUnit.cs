@@ -38,9 +38,7 @@ public class SemanticUnit
             switch (node) {
                 case EnumNode enumNode:
                     var enumType = _factory.GetEnumSymbol(enumNode, fileScope);
-                    if (enumType is null)
-                        isValid = false;
-                    else
+                    isValid &= enumType.IsValid;
                         isValid &= ns.TryAdd(enumType);
                     break;
                 case StructNode structNode:

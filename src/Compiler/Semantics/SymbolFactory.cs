@@ -7,7 +7,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
 {
     private readonly SemanticUnit _unit = unit;
 
-    public EnumTypeInfo GetEnumSymbol(EnumNode node, Scope __) {
+    public EnumTypeInfo GetEnumSymbol(EnumNode node, Scope _) {
         // todo: support enums with parents
         var enumType = new EnumTypeInfo(node.Name.TypeName.Value, node.Location);
 
@@ -19,7 +19,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
                     => new EnumValueInfo(nameNode.Value, enumType, value.Location) {
                         Value = (int)val.Value
                     },
-                _ => throw null!
+                _ => throw null! // values can only be simple names or assignement betwen name and const
             };
 
             if (!enumType.TryAddValue(valueNode))
