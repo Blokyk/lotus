@@ -42,7 +42,10 @@ public class SemanticUnit
                         isValid &= ns.TryAdd(enumType);
                     break;
                 case StructNode structNode:
-                    break; // todo: handle struct decl
+                    var structType = _factory.GetStructSymbol(structNode, fileScope);
+                    isValid &= structType.IsValid;
+                    isValid &= ns.TryAdd(structType);
+                    break;
                 case FunctionDeclarationNode funcNode:
                     break; // todo: handle func decl
                 default:

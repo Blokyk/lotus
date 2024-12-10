@@ -17,7 +17,7 @@ public sealed record StructNode(
 
 public sealed record StructField(
     IdentNode Name,
-    NameNode Type,
+    NameNode Type, // fixme: this isn't always a name!! (eg: int[])
     ValueNode? DefaultValue,
     Token? EqualSign,
     ImmutableArray<Token> Modifiers

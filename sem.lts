@@ -1,7 +1,11 @@
-using truc;
+// using truc;
 
 namespace std;
 
 enum test {
-    a, b, c, c
+    a, b, c
+}
+
+struct foo {
+    bar: std.test;
 }

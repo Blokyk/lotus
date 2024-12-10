@@ -10,6 +10,20 @@ public sealed class StructTypeInfo(string name, LocationRange loc)
     private Dictionary<string, FieldInfo> _fields = [];
     public IReadOnlyCollection<FieldInfo> Fields => _fields.Values;
 
+    internal bool TryAddField(FieldInfo field) {
+        if (_fields.TryAdd(field.Name, field))
+            return true;
+
+        Logger.Error(new DuplicateSymbol {
+            TargetSymbol = field,
+            ExistingSymbol = _fields[field.Name],
+            ContainingSymbol = this,
+            In = "struct declaration"
+        });
+
+        return false;
+    }
+
     Scope IScope.Scope => throw new NotImplementedException();
     private sealed class StructScope(StructTypeInfo @this) : Scope {
         public override SymbolInfo? Get(string name) {
