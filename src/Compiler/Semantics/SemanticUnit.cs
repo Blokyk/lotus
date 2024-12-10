@@ -30,7 +30,7 @@ public class SemanticUnit
 
         var importedScope = GetImportedScope(tree);
 
-        var fileScope = Scope.Combine(importedScope, Scope.From(ns));
+        var fileScope = Scope.Combine(importedScope, Scope.From(ns), GlobalScope);
 
         var isValid = true;
 
