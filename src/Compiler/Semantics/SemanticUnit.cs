@@ -39,7 +39,7 @@ public class SemanticUnit
                 case EnumNode enumNode:
                     var enumType = _factory.GetEnumSymbol(enumNode, fileScope);
                     isValid &= enumType.IsValid;
-                        isValid &= ns.TryAdd(enumType);
+                    isValid &= ns.TryAdd(enumType);
                     break;
                 case StructNode structNode:
                     var structType = _factory.GetStructSymbol(structNode, fileScope);
@@ -115,5 +115,5 @@ public class SemanticUnit
         return currNs;
     }
 
-    public override string ToString() => SemanticFormatter.Format(Global);
+    public override string ToString() => SemanticVisualizer.Format(Global);
 }

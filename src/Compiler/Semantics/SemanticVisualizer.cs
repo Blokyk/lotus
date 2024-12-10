@@ -4,24 +4,28 @@ using System.IO;
 namespace Lotus.Semantics;
 
 // todo: rewrite this to use IndentedStringBuilder
-internal class SemanticFormatter : ISymbolVisitor<IndentedTextWriter>
+internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
 {
     private readonly IndentedTextWriter _writer;
 
-    private SemanticFormatter(TextWriter backingWriter)
+    private SemanticVisualizer(TextWriter backingWriter)
         => _writer = new(backingWriter);
 
     public static string Format(SymbolInfo symbol) {
         using var strWriter = new StringWriter();
-        var formatter = new SemanticFormatter(strWriter);
+        var formatter = new SemanticVisualizer(strWriter);
         _ = symbol.Accept(formatter);
         return strWriter.ToString();
     }
 
-    public void Write(SymbolInfo symbol) => symbol.Accept(this);
+    private void Write(SymbolInfo symbol) => symbol.Accept(this);
 
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(SymbolInfo symbol)
-        => _writer;
+    IndentedTextWriter Default(SymbolInfo symbol) {
+        _writer.WriteLine(SymbolFormatter.Format(symbol));
+        return _writer;
+    }
+
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(SymbolInfo symbol) => Default(symbol);
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(NamespaceInfo ns) {
         _writer.WriteLine($"namespace {ns.Name} {{");
@@ -42,14 +46,12 @@ internal class SemanticFormatter : ISymbolVisitor<IndentedTextWriter>
         return _writer;
     }
 
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(TypeInfo symbol)
-        => _writer;
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(TypeInfo symbol) => Default(symbol);
 
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ArrayTypeInfo symbol) => throw new NotImplementedException();
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UnionTypeInfo symbol) => throw new NotImplementedException();
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(MissingTypeInfo symbol) => throw new NotImplementedException();
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UserTypeInfo symbol)
-        => _writer;
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ArrayTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UnionTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(MissingTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UserTypeInfo symbol) => Default(symbol);
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(EnumTypeInfo symbol) {
         _writer.WriteLine($"enum {symbol.Name} {{");
@@ -74,7 +76,7 @@ internal class SemanticFormatter : ISymbolVisitor<IndentedTextWriter>
     }
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(StructTypeInfo symbol) {
-        _writer.WriteLine($"struct {symbol.Name} {{");
+        _writer.WriteLine($"struct {SymbolFormatter.Format(symbol)} {{");
 
         using (_writer.Indent()) {
             foreach (var field in symbol.Fields)
@@ -86,11 +88,14 @@ internal class SemanticFormatter : ISymbolVisitor<IndentedTextWriter>
     }
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(FieldInfo symbol) {
-        _writer.WriteLine($"{symbol.Name}: {symbol.Type}");
+        _writer.Write(symbol.Name + ": " + SymbolFormatter.Format(symbol.Type));
+        if (symbol.HasDefaultValue)
+            _writer.Write(" = " + symbol.DefaultValue);
+        _writer.WriteLine();
         return _writer;
     }
 
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(MethodInfo symbol) => throw new NotImplementedException();
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ParameterInfo symbol) => throw new NotImplementedException();
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(LocalInfo symbol) => throw new NotImplementedException();
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(MethodInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ParameterInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(LocalInfo symbol) => Default(symbol);
 }
