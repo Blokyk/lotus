@@ -39,17 +39,38 @@ internal abstract class Scope : IScope
 
     public static Scope From(IScope scoper) => scoper.Scope;
 
-    // todo: maybe special case combining with another CombinedScope
-    // todo: do TryGetCount and check if it's just one, in which case just return the single scope
-    public static Scope Combine(params IEnumerable<Scope> scopes)
-        => new CombinedScope(scopes);
+    public static Scope Combine(params IEnumerable<Scope> scopes) {
+        if (scopes.TryGetNonEnumeratedCount(out var count)) {
+            if (count == 0)
+                return Empty;
+            if (count == 1)
+                return scopes.First();
+            // otherwise, we don't care
+        }
+
+        var builder = ImmutableArray.CreateBuilder<Scope>();
+        foreach (var scope in scopes) {
+            if (scope is CombinedScope combined)
+                builder.AddRange(combined.scopes);
+            else if (scope is EmptyScope)
+                continue;
+            else
+                builder.Add(scope);
+        }
+
+        if (builder.Count == 1)
+            return builder[0];
+
+        return new CombinedScope(builder.DrainToImmutable());
+    }
+
     // public static Scope Combine(params IEnumerable<IScope> scopes)
     //     => new CombinedScope(scopes.Select(s => s.Scope));
-    private sealed class CombinedScope(params IEnumerable<Scope> scopes) : Scope
+    private sealed class CombinedScope(ImmutableArray<Scope> _scopes) : Scope
     {
-        readonly Scope[] _scopes = scopes.ToArray();
+        internal readonly ImmutableArray<Scope> scopes = _scopes;
         public override SymbolInfo? Get(string name) {
-            foreach (var scope in _scopes) {
+            foreach (var scope in scopes) {
                 if (scope.Get(name) is SymbolInfo found)
                     return found;
             }
