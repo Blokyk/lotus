@@ -15,7 +15,7 @@ public class SemanticUnit
 
     private readonly SymbolFactory _factory;
 
-    public bool IsValid { get; }
+    public bool IsValid { get; } = true;
 
     public SemanticUnit(IEnumerable<SyntaxTree> trees) {
         _factory = new(this);
