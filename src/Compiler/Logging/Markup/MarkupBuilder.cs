@@ -138,22 +138,22 @@ internal sealed class MarkupBuilder
 
     public MarkupBuilder AppendLine() => Append("\n");
     public MarkupBuilder AppendLine(string text) => Append(text + '\n');
-    public MarkupBuilder AppendLine(char text) => Append(text + '\n');
+    public MarkupBuilder AppendLine(char text) => Append(text + "\n");
     public MarkupBuilder AppendLine(object obj) => Append(obj.ToString() + '\n');
     public MarkupBuilder AppendLine(MarkupBuilder markups) => Append(markups.AppendLine());
 
     public MarkupBuilder AppendLine(string text, Style style) => Append(text + '\n', style);
-    public MarkupBuilder AppendLine(char text, Style style) => Append(text + '\n', style);
+    public MarkupBuilder AppendLine(char text, Style style) => Append(text + "\n", style);
     public MarkupBuilder AppendLine(object obj, Style style) => Append(obj.ToString() + '\n', style);
     public MarkupBuilder AppendLine(MarkupBuilder markups, Style style) => Append(markups.AppendLine(), style);
 
     public MarkupBuilder AppendLine(string text, TextColor color) => Append(text + '\n', color);
-    public MarkupBuilder AppendLine(char text, TextColor color) => Append(text + '\n', color);
+    public MarkupBuilder AppendLine(char text, TextColor color) => Append(text + "\n", color);
     public MarkupBuilder AppendLine(object obj, TextColor color) => Append(obj.ToString() + '\n', color);
     public MarkupBuilder AppendLine(MarkupBuilder markups, TextColor color) => Append(markups.AppendLine(), color);
 
     public MarkupBuilder AppendLine(string text, TextFormat format) => Append(text + '\n', format);
-    public MarkupBuilder AppendLine(char text, TextFormat format) => Append(text + '\n', format);
+    public MarkupBuilder AppendLine(char text, TextFormat format) => Append(text + "\n", format);
     public MarkupBuilder AppendLine(object obj, TextFormat format) => Append(obj.ToString() + '\n', format);
     public MarkupBuilder AppendLine(MarkupBuilder markups, TextFormat format) => Append(markups.AppendLine(), format);
 
