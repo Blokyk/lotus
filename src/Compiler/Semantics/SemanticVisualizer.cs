@@ -40,6 +40,11 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
                 Write(type);
                 _writer.WriteLineNoTabs();
             }
+
+            foreach (var func in ns.Functions) {
+                Write(func);
+                _writer.WriteLineNoTabs();
+            }
         }
 
         _writer.WriteLine('}');
