@@ -18,8 +18,6 @@ internal abstract class Scope : IScope
 
     Scope IScope.Scope => this;
 
-    public SymbolInfo? ResolveQualified(NameNode name)
-        => ResolveQualified(name.Parts.Select(t => t.Representation));
     public SymbolInfo? ResolveQualified(IEnumerable<string> parts) {
         SymbolInfo? currSymbol = null;
 

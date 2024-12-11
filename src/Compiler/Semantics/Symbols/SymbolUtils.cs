@@ -13,4 +13,23 @@ internal static class SymbolUtils
             TypeInfo      => "type",
             _ => throw new InvalidOperationException("Type " + s.GetType() + " doesn't have an associated kind")
         };
+
+    public static string GetKindString<T>() where T : SymbolInfo {
+        if (typeof(T).IsAssignableTo(typeof(ParameterInfo)))
+            return "parameter";
+        if (typeof(T).IsAssignableTo(typeof(NamespaceInfo)))
+            return "namespace";
+        if (typeof(T).IsAssignableTo(typeof(MethodInfo)))
+            return "method";
+        if (typeof(T).IsAssignableTo(typeof(LocalInfo)))
+            return "local";
+        if (typeof(T).IsAssignableTo(typeof(FieldInfo)))
+            return "field";
+        if (typeof(T).IsAssignableTo(typeof(EnumValueInfo)))
+            return "enum field";
+        if (typeof(T).IsAssignableTo(typeof(TypeInfo)))
+            return "type";
+
+        throw new InvalidOperationException("Type " + typeof(T) + " doesn't have an associated kind");
+    }
 }
