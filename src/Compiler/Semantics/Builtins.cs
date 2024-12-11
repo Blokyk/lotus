@@ -1,6 +1,6 @@
 namespace Lotus.Semantics;
 
-public static class BuiltinTypes
+internal static class Builtins
 {
     public static readonly MissingTypeInfo Unknown
         = new("<unknown>");
