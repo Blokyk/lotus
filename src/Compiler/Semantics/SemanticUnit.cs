@@ -70,7 +70,13 @@ public class SemanticUnit
                     });
                     break;
                 case FunctionDeclarationNode funcNode:
-                    break; // todo: handle func decl
+                    var func = _factory.GetEmptyFunctionSymbol(funcNode);
+                    isValid &= ns.TryAdd(func);
+                    fillingActions.Add(scope => {
+                        _factory.FillFunctionSymbol(func, funcNode, scope);
+                        return func.IsValid;
+                    });
+                    break;
                 default:
                     // the other nodes are just imports, usings, and namespaces
                     // so we can just ignore those for now

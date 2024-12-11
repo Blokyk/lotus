@@ -2,24 +2,43 @@ using Lotus.Semantics.Binding;
 
 namespace Lotus.Semantics;
 
-public class MethodInfo(NamespaceInfo containingNamespace)
+public class FunctionInfo(string name, LocationRange loc)
     : SymbolInfo
+    , INamedSymbol
     , IMemberSymbol<NamespaceInfo>
     , IContainerSymbol<ParameterInfo>
     , IScope
     , ILocalized
 {
+    public LocationRange Location { get; } = loc;
+
+    public string Name => name;
+
+    public NamespaceInfo? ContainingNamespace { get; set; }
+
+    public TypeInfo ReturnType { get; set; } = Builtins.Unknown;
+
     private Dictionary<string, ParameterInfo> _params = [];
     public IReadOnlyCollection<ParameterInfo> Parameters => _params.Values;
 
-    public LocationRange Location { get; init; }
+    public bool TryAdd(ParameterInfo param) {
+        if (_params.TryAdd(param.Name, param))
+            return true;
 
-    public NamespaceInfo ContainingNamespace { get; } = containingNamespace;
+        Logger.Error(new DuplicateSymbol {
+            TargetSymbol = param,
+            ExistingSymbol = _params[param.Name],
+            In = "a method parameter list",
+            ContainingSymbol = this
+        });
+
+        return false;
+    }
 
     private MethodScope? _scope = null;
     Scope IScope.Scope => _scope ?? new(this);
     // todo: split scope for signature and body (locals can shadow params, but params can't have same name)
-    private sealed class MethodScope(MethodInfo @this) : Scope {
+    private sealed class MethodScope(FunctionInfo @this) : Scope {
         public override SymbolInfo? Get(string name) {
             if (@this._params.TryGetValue(name, out var param))
                 return param;

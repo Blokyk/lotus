@@ -39,7 +39,7 @@ public class SymbolFormatter : ISymbolVisitor<string>
     string ISymbolVisitor<string>.Visit(FieldInfo symbol)
         => Format(symbol.FromStruct) + "." + symbol.Name + ": " + Format(symbol.Type);
 
-    string ISymbolVisitor<string>.Visit(MethodInfo symbol) => throw new NotImplementedException();
+    string ISymbolVisitor<string>.Visit(FunctionInfo symbol) => throw new NotImplementedException();
     string ISymbolVisitor<string>.Visit(ParameterInfo symbol)
         => symbol.Name + ": " + Format(symbol.Type);
     string ISymbolVisitor<string>.Visit(LocalInfo symbol)

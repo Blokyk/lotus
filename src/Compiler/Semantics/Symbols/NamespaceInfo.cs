@@ -21,6 +21,7 @@ public class NamespaceInfo(string name)
         Debug.Assert(ns.ContainingNamespace is null);
         ns.ContainingNamespace = this;
         var couldAdd = _namespaces.TryAdd(ns.Name, ns);
+        // fixme: check name doesn't clash with types or funcs
         Debug.Assert(couldAdd, "Adding a new namespace should never fail; this proably means that you created a new NS instead of resolving to an existing one");
         return couldAdd;
     }
@@ -34,9 +35,31 @@ public class NamespaceInfo(string name)
         if (_types.TryAdd(type.Name, type))
             return true;
 
+        // fixme: check name doesn't clash with namespaces or funcs
+
         Logger.Error(new DuplicateSymbol {
             TargetSymbol = type,
             ExistingSymbol = _types[type.Name],
+            ContainingSymbol = this
+        });
+
+        return false;
+    }
+
+    private Dictionary<string, FunctionInfo> _funcs = [];
+    public IEnumerable<FunctionInfo> Functions => _funcs.Values;
+    public bool TryAdd(FunctionInfo func) {
+        Debug.Assert(func.ContainingNamespace is null);
+        func.ContainingNamespace = this;
+
+        if (_funcs.TryAdd(func.Name, func))
+            return true;
+
+        // fixme: check name doesn't clash with namespaces or types
+
+        Logger.Error(new DuplicateSymbol {
+            TargetSymbol = func,
+            ExistingSymbol = _funcs[func.Name],
             ContainingSymbol = this
         });
 
@@ -61,7 +84,6 @@ public class NamespaceInfo(string name)
     IEnumerable<NamespaceInfo> IContainerSymbol<NamespaceInfo>.Children() => Namespaces;
     IEnumerable<UserTypeInfo> IContainerSymbol<UserTypeInfo>.Children() => Types;
     NamespaceInfo? IMemberSymbol<NamespaceInfo?>.ContainingSymbol => ContainingNamespace;
-
 
     public override string ToString() {
         if (IsTopNamespace)

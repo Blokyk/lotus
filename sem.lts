@@ -2,10 +2,21 @@
 
 namespace std;
 
+struct foo {
+    bar: std.test;
+    baz: foo;
+    i: int;
+    s: string;
+}
+
 enum test {
     a, b, c
 }
 
-struct foo {
-    bar: std.test;
+func act() {
+    print("something");
+}
+
+func val(): int {
+    return 8;
 }

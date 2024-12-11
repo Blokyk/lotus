@@ -95,7 +95,22 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
         return _writer;
     }
 
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(MethodInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(FunctionInfo symbol) {
+        _writer.Write("func " + symbol.Name + "(");
+        if (symbol.Parameters.Count != 0) {
+            _writer.WriteLineNoTabs();
+            using(_writer.Indent()) {
+                foreach (var param in symbol.Parameters)
+                    Write(param);
+            }
+        }
+        _writer.Write("): ");
+        Write(symbol.ReturnType);
+
+        _writer.WriteLineNoTabs();
+
+        return _writer;
+    }
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ParameterInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(LocalInfo symbol) => Default(symbol);
 }

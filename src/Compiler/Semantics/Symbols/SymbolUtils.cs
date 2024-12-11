@@ -6,7 +6,7 @@ internal static class SymbolUtils
         => s switch {
             ParameterInfo => "parameter",
             NamespaceInfo => "namespace",
-            MethodInfo    => "method",
+            FunctionInfo    => "method",
             LocalInfo     => "local variable",
             FieldInfo     => "struct field",
             EnumValueInfo => "enum field",
@@ -19,7 +19,7 @@ internal static class SymbolUtils
             return "parameter";
         if (typeof(T).IsAssignableTo(typeof(NamespaceInfo)))
             return "namespace";
-        if (typeof(T).IsAssignableTo(typeof(MethodInfo)))
+        if (typeof(T).IsAssignableTo(typeof(FunctionInfo)))
             return "method";
         if (typeof(T).IsAssignableTo(typeof(LocalInfo)))
             return "local";

@@ -52,4 +52,44 @@ internal sealed class SymbolFactory(SemanticUnit unit)
                 structType.IsValid = false;
         }
     }
+
+    public FunctionInfo GetEmptyFunctionSymbol(FunctionDeclarationNode node)
+        => new(node.FuncName, node.Location);
+
+    public void FillFunctionSymbol(
+        FunctionInfo function,
+        FunctionDeclarationNode node,
+        Scope scope
+    ) {
+        if (node.HasReturnType) {
+            var returnType = scope.ResolveQualified<TypeInfo>(node.ReturnType);
+            if (returnType is null) {
+                function.IsValid = false;
+                returnType = Builtins.Unknown;
+            }
+
+            function.ReturnType = returnType;
+        } else {
+            function.ReturnType = Builtins.Void;
+        }
+
+        foreach (var paramNode in node.ParamList) {
+            bool isValid = true;
+
+            var paramType = scope.ResolveQualified<TypeInfo>(paramNode.Type);
+
+            if (paramType is null) {
+                function.IsValid = false;
+                isValid = false;
+                paramType = Builtins.Unknown;
+            }
+
+            var param = new ParameterInfo(paramNode.Name.Value, paramType, function) {
+                IsValid = isValid
+            };
+
+            if (!function.TryAdd(param))
+                function.IsValid = false;
+        }
+    }
 }

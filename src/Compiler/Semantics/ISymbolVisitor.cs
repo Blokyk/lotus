@@ -18,7 +18,7 @@ public interface ISymbolVisitor<out T>
     T Visit(StructTypeInfo symbol);
     T Visit(FieldInfo symbol);
 
-    T Visit(MethodInfo symbol);
+    T Visit(FunctionInfo symbol);
     T Visit(ParameterInfo symbol);
     T Visit(LocalInfo symbol);
 }
