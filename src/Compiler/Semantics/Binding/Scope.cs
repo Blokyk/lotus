@@ -37,6 +37,17 @@ internal abstract class Scope : IScope
 
     public static Scope From(IScope scoper) => scoper.Scope;
 
+    public static Scope Combine(Scope s) => s;
+    public static Scope Combine(Scope s1, Scope s2)
+        => (s1, s2) switch {
+            (EmptyScope, _) => s2,
+            (_, EmptyScope) => s1,
+            (CombinedScope cs1, CombinedScope cs2) => new CombinedScope(cs1.scopes.AddRange(cs2.scopes)),
+            (CombinedScope cs1, _) => new CombinedScope(cs1.scopes.Add(s2)),
+            (_, CombinedScope cs2) => new CombinedScope(cs2.scopes.Add(s1)),
+            _ => new CombinedScope([s1, s2])
+        };
+
     public static Scope Combine(params IEnumerable<Scope> scopes) {
         if (scopes.TryGetNonEnumeratedCount(out var count)) {
             if (count == 0)
