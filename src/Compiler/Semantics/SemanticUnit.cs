@@ -6,7 +6,7 @@ namespace Lotus.Semantics;
 // fixme: none of this handles accessibility
 public class SemanticUnit
 {
-    internal NamespaceInfo Global { get; } = new("<global>");
+    internal NamespaceInfo Global { get; }
 
     private Scope GlobalScope => ((IScope)Global).Scope;
 
@@ -17,9 +17,12 @@ public class SemanticUnit
 
     public bool IsValid { get; } = true;
 
-    public SemanticUnit(IEnumerable<SyntaxTree> trees) {
+    private SemanticUnit() {
         _factory = new(this);
+        Global = Builtins.CreateGlobalNamespace();
+    }
 
+    public SemanticUnit(IEnumerable<SyntaxTree> trees) : this() {
         foreach (var tree in trees)
             IsValid &= TryAddTree(tree);
     }

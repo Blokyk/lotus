@@ -23,4 +23,20 @@ internal static class Builtins
         = new("float", LocationRange.NULL);
     public static readonly StructTypeInfo Double
         = new("double", LocationRange.NULL);
+
+    public static NamespaceInfo CreateGlobalNamespace() {
+        var ns = new NamespaceInfo("<global>");
+
+        ns.TryAdd(Void);
+        ns.TryAdd(Bool);
+        ns.TryAdd(String);
+        ns.TryAdd(Int);
+        ns.TryAdd(UInt);
+        ns.TryAdd(Long);
+        ns.TryAdd(ULong);
+        ns.TryAdd(Float);
+        ns.TryAdd(Double);
+
+        return ns;
+    }
 }
