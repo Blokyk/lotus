@@ -34,17 +34,37 @@ public class SemanticUnit
 
         var isValid = true;
 
+        // we first want to add the declarations to the scope
+        // and then fill-in (resolve) the actual type of everything.
+        // To implement that, we have a list of pending "fillings"
+        // that need to be done; each time we process a new declaration,
+        // we just queue up an action that will be executed after every
+        // declaration has been added to the scope. only then can we start
+        // resolving type names and stuff
+        var fillingActions = new List<Func<Scope, bool>>();
+
+        // todo: as a slight enhancement of the above, maybe we can
+        // already fill-in the field names (or value names for enums)
+        // during the initial declaration, but we'll live the resolving
+        // of types and default values and such to later.
+
         foreach (var node in tree.TopNodes) {
             switch (node) {
                 case EnumNode enumNode:
-                    var enumType = _factory.GetEnumSymbol(enumNode, fileScope);
-                    isValid &= enumType.IsValid;
+                    var enumType = _factory.GetEmptyEnumSymbol(enumNode);
                     isValid &= ns.TryAdd(enumType);
+                    fillingActions.Add(scope => {
+                        _factory.FillEnumSymbol(enumType, enumNode, scope);
+                        return enumType.IsValid;
+                    });
                     break;
                 case StructNode structNode:
-                    var structType = _factory.GetStructSymbol(structNode, fileScope);
-                    isValid &= structType.IsValid;
+                    var structType = _factory.GetEmptyStructSymbol(structNode);
                     isValid &= ns.TryAdd(structType);
+                    fillingActions.Add(scope => {
+                        _factory.FillStructSymbol(structType, structNode, scope);
+                        return structType.IsValid;
+                    });
                     break;
                 case FunctionDeclarationNode funcNode:
                     break; // todo: handle func decl
@@ -54,6 +74,9 @@ public class SemanticUnit
                     continue;
             }
         }
+
+        foreach (var action in fillingActions)
+            isValid &= action(fileScope);
 
         return isValid;
     }

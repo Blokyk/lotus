@@ -7,9 +7,11 @@ internal sealed class SymbolFactory(SemanticUnit unit)
 {
     private readonly SemanticUnit _unit = unit;
 
-    public EnumTypeInfo GetEnumSymbol(EnumNode node, Scope _) {
+    public EnumTypeInfo GetEmptyEnumSymbol(EnumNode node)
+        => new EnumTypeInfo(node.Name.TypeName.Value, node.Location);
+
+    public void FillEnumSymbol(EnumTypeInfo enumType, EnumNode node, Scope _) {
         // todo: support enums with parents
-        var enumType = new EnumTypeInfo(node.Name.TypeName.Value, node.Location);
 
         foreach (var value in node.Values) {
             var valueNode = value switch {
@@ -25,42 +27,29 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             if (!enumType.TryAddValue(valueNode))
                 enumType.IsValid = false;
         }
-
-        return enumType;
     }
 
-    public StructTypeInfo GetStructSymbol(StructNode node, Scope scope) {
-        var structType = new StructTypeInfo(node.Name.Value, node.Location);
+    public StructTypeInfo GetEmptyStructSymbol(StructNode node)
+        => new(node.Name.Value, node.Location);
 
+    public void FillStructSymbol(StructTypeInfo structType, StructNode node, Scope scope) {
         foreach (var fieldDecl in node.Fields) {
-            var fieldTypeSymbol = scope.ResolveQualified(fieldDecl.Type);
+            bool isValid = true;
 
-            if (fieldTypeSymbol is null) {
-                Logger.Error(new UnknownSymbol {
-                    SymbolName = fieldDecl.Type.ToFullString(),
-                    ExpectedKinds = [ "type name" ],
-                    Location = fieldDecl.Type.Location
-                });
+            var fieldType = scope.ResolveQualified<TypeInfo>(fieldDecl.Type);
+
+            if (fieldType is null) {
                 structType.IsValid = false;
-                continue;
+                isValid = false;
+                fieldType = Builtins.Unknown;
             }
 
-            if (fieldTypeSymbol is not TypeInfo fieldType) {
-                Logger.Error(new UnexpectedSymbolKind {
-                    TargetSymbol = fieldTypeSymbol,
-                    ExpectedKinds = [ "type name" ],
-                    Location = fieldDecl.Type.Location
-                });
-                structType.IsValid = false;
-                continue;
-            }
-
-            var field = new FieldInfo(fieldDecl.Name.Value, fieldType, structType);
+            var field = new FieldInfo(fieldDecl.Name.Value, fieldType, structType) {
+                IsValid = isValid
+            };
 
             if (!structType.TryAddField(field))
                 structType.IsValid = false;
         }
-
-        return structType;
     }
 }
