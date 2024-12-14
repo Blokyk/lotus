@@ -1,6 +1,12 @@
 namespace Lotus.Semantics;
 
-public class ParameterInfo(string name, TypeInfo type, FunctionInfo containingFunc, SemanticUnit unit)
+public class ParameterInfo(
+    string name,
+    TypeInfo type,
+    FunctionInfo containingFunc,
+    LocationRange loc,
+    SemanticUnit unit
+)
     : TypedSymbolInfo(unit)
     , INamedSymbol
     , ILocalized
@@ -9,7 +15,7 @@ public class ParameterInfo(string name, TypeInfo type, FunctionInfo containingFu
     public string Name { get; } = name;
     public override TypeInfo Type => type;
 
-    public LocationRange Location { get; init; }
+    public LocationRange Location => loc;
 
     public FunctionInfo ContainingFunction { get; } = containingFunc;
     FunctionInfo IMemberSymbol<FunctionInfo>.ContainingSymbol => ContainingFunction;

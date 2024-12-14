@@ -84,7 +84,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
                 paramType = Builtins.Unknown;
             }
 
-            var param = new ParameterInfo(paramNode.Name.Value, paramType, function, _unit) {
+            var param = new ParameterInfo(paramNode.Name.Value, paramType, function, paramNode.Location, _unit) {
                 IsValid = isValid
             };
 

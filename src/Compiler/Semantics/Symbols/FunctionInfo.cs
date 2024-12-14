@@ -10,7 +10,7 @@ public class FunctionInfo(string name, LocationRange loc, SemanticUnit unit)
     , IScope
     , ILocalized
 {
-    public LocationRange Location { get; } = loc;
+    public LocationRange Location => loc;
 
     public string Name => name;
 
