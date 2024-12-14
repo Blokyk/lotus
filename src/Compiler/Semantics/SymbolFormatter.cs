@@ -13,6 +13,7 @@ public class SymbolFormatter : ISymbolVisitor<string>
         );
 
     string ISymbolVisitor<string>.Visit(SymbolInfo symbol) => Default(symbol);
+    string ISymbolVisitor<string>.Visit(TypedSymbolInfo symbol) => Default(symbol);
 
     string ISymbolVisitor<string>.Visit(NamespaceInfo ns)
         => ns.ContainingNamespace switch {

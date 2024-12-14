@@ -26,6 +26,7 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
     }
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(SymbolInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(TypedSymbolInfo symbol) => Default(symbol);
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(NamespaceInfo ns) {
         _writer.WriteLine($"namespace {ns.Name} {{");

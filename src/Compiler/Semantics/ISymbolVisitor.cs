@@ -6,6 +6,8 @@ public interface ISymbolVisitor<out T>
 
     T Visit(NamespaceInfo symbol);
 
+    T Visit(TypedSymbolInfo symbol);
+
     T Visit(TypeInfo symbol);
     T Visit(ArrayTypeInfo symbol);
     T Visit(UnionTypeInfo symbol);

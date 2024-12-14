@@ -3,7 +3,7 @@ using Lotus.Semantics.Binding;
 namespace Lotus.Semantics;
 
 public class FunctionInfo(string name, LocationRange loc)
-    : SymbolInfo
+    : SymbolInfo // todo: should be 'TypedSymbolInfo' when we have a way to represent lambdas
     , INamedSymbol
     , IMemberSymbol<NamespaceInfo>
     , IContainerSymbol<ParameterInfo>

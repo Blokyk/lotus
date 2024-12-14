@@ -1,12 +1,12 @@
 namespace Lotus.Semantics;
 
 public sealed class FieldInfo(string name, TypeInfo type, TypeInfo containingType)
-    : SymbolInfo
+    : TypedSymbolInfo
     , INamedSymbol
     , IMemberSymbol<StructTypeInfo>
 {
     public string Name { get; } = name;
-    public TypeInfo Type { get; } = type;
+    public override TypeInfo Type => type;
 
     // fixme: change to some other type (specific type to represent const vals?) when binding is done
     public object? DefaultValue { get; init; }
