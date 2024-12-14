@@ -11,8 +11,14 @@ public interface ISymbolVisitor<out T>
     T Visit(TypeInfo symbol);
     T Visit(ArrayTypeInfo symbol);
     T Visit(UnionTypeInfo symbol);
-    T Visit(MissingTypeInfo symbol);
     T Visit(UserTypeInfo symbol);
+
+    internal T Visit(BoolTypeInfo symbol);
+    internal T Visit(CharTypeInfo symbol);
+    internal T Visit(NumberTypeInfo symbol);
+    internal T Visit(StringTypeInfo symbol);
+    internal T Visit(UnknownTypeInfo symbol);
+    internal T Visit(VoidTypeInfo symbol);
 
     T Visit(EnumTypeInfo symbol);
     T Visit(EnumValueInfo symbol);

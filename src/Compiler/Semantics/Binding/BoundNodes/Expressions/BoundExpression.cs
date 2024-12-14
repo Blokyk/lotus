@@ -6,7 +6,7 @@ internal abstract class BoundExpression : IBoundNode<ValueNode>
 {
     public ValueNode BackingNode { get; }
 
-    public TypeInfo Type { get; set; } = Builtins.Unknown;
+    public TypeInfo? Type { get; set; }
 
     protected BoundExpression(ValueNode node) {
         BackingNode = node;

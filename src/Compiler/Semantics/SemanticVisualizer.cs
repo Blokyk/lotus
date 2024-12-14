@@ -34,21 +34,21 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
         using (_writer.Indent()) {
             foreach (var childNs in ns.Namespaces) {
                 Write(childNs);
-                _writer.WriteLineNoTabs();
+                _writer.WriteLine();
             }
 
-            foreach (var type in ns.Types) {
+            foreach (var type in ns.Types.Where(t => t.SpecialType is SpecialType.None)) {
                 Write(type);
-                _writer.WriteLineNoTabs();
+                _writer.WriteLine();
             }
 
             foreach (var func in ns.Functions) {
                 Write(func);
-                _writer.WriteLineNoTabs();
+                _writer.WriteLine();
             }
         }
 
-        _writer.WriteLine('}');
+        _writer.WriteLine($"}} // {ns.Name}");
         return _writer;
     }
 
@@ -59,6 +59,14 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(MissingTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UserTypeInfo symbol) => Default(symbol);
 
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(BoolTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(CharTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(NumberTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(StringTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UnknownTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(VoidTypeInfo symbol) => Default(symbol);
+
+
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(EnumTypeInfo symbol) {
         _writer.WriteLine($"enum {symbol.Name} {{");
 
@@ -67,7 +75,7 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
                 Write(value);
         }
 
-        _writer.WriteLine('}');
+        _writer.WriteLine($"}} // {symbol.Name}");
         return _writer;
     }
 
@@ -82,14 +90,14 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
     }
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(StructTypeInfo symbol) {
-        _writer.WriteLine($"struct {SymbolFormatter.Format(symbol)} {{");
+        _writer.WriteLine($"struct {symbol.Name} {{");
 
         using (_writer.Indent()) {
             foreach (var field in symbol.Fields)
                 Write(field);
         }
 
-        _writer.WriteLine('}');
+        _writer.WriteLine("} // " + symbol.Name);
         return _writer;
     }
 
@@ -104,16 +112,15 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(FunctionInfo symbol) {
         _writer.Write("func " + symbol.Name + "(");
         if (symbol.Parameters.Count != 0) {
-            _writer.WriteLineNoTabs();
+            _writer.WriteLine();
             using(_writer.Indent()) {
                 foreach (var param in symbol.Parameters)
                     Write(param);
             }
         }
-        _writer.Write("): ");
-        Write(symbol.ReturnType);
+        _writer.Write("): " + SymbolFormatter.Format(symbol.ReturnType));
 
-        _writer.WriteLineNoTabs();
+        _writer.WriteLine();
 
         return _writer;
     }

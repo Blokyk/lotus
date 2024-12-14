@@ -19,7 +19,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
                     => new EnumValueInfo(rawName, enumType, value.Location, _unit),
                 OperationNode { Operands: [IdentNode nameNode, NumberNode val] }
                     => new EnumValueInfo(nameNode.Value, enumType, value.Location, _unit) {
-                        Value = (int)val.Value
+                        Value = (int)(double)val.Value // note: .Value is always a double right now
                     },
                 _ => throw null! // values can only be simple names or assignement betwen name and const
             };
@@ -41,7 +41,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             if (fieldType is null) {
                 structType.IsValid = false;
                 isValid = false;
-                fieldType = Builtins.Unknown;
+                fieldType = _unit.UnknownType;
             }
 
             var field = new FieldInfo(fieldDecl.Name.Value, fieldType, structType, _unit) {
@@ -65,12 +65,12 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             var returnType = scope.ResolveQualified<TypeInfo>(node.ReturnType);
             if (returnType is null) {
                 function.IsValid = false;
-                returnType = Builtins.Unknown;
+                returnType = _unit.UnknownType;
             }
 
             function.ReturnType = returnType;
         } else {
-            function.ReturnType = Builtins.Void;
+            function.ReturnType = _unit.VoidType;
         }
 
         foreach (var paramNode in node.ParamList) {
@@ -81,7 +81,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             if (paramType is null) {
                 function.IsValid = false;
                 isValid = false;
-                paramType = Builtins.Unknown;
+                paramType = _unit.UnknownType;
             }
 
             var param = new ParameterInfo(paramNode.Name.Value, paramType, function, paramNode.Location, _unit) {

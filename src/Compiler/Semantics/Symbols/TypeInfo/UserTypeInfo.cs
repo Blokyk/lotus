@@ -1,4 +1,3 @@
-
 namespace Lotus.Semantics;
 
 public abstract class UserTypeInfo(string name, LocationRange loc, SemanticUnit unit)
@@ -11,7 +10,7 @@ public abstract class UserTypeInfo(string name, LocationRange loc, SemanticUnit 
 
     public NamespaceInfo? ContainingNamespace { get; set; }
 
-    public LocationRange Location { get; } = loc;
+    public LocationRange Location => loc;
 
     NamespaceInfo? IMemberSymbol<NamespaceInfo?>.ContainingSymbol => ContainingNamespace;
 

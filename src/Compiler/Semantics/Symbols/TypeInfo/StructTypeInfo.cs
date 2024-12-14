@@ -24,7 +24,8 @@ public sealed class StructTypeInfo(string name, LocationRange loc, SemanticUnit 
         return false;
     }
 
-    Scope IScope.Scope => new StructScope(this);
+    private StructScope? _scope = null;
+    Scope IScope.Scope => _scope ??= new StructScope(this);
     private sealed class StructScope(StructTypeInfo @this) : Scope {
         public override SymbolInfo? Get(string name) {
             if (@this._fields.TryGetValue(name, out var field))

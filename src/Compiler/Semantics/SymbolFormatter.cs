@@ -23,10 +23,21 @@ public class SymbolFormatter : ISymbolVisitor<string>
         };
 
     string ISymbolVisitor<string>.Visit(TypeInfo symbol) => Default(symbol);
-    string ISymbolVisitor<string>.Visit(ArrayTypeInfo symbol) => Default(symbol);
-    string ISymbolVisitor<string>.Visit(UnionTypeInfo symbol) => Default(symbol);
-    string ISymbolVisitor<string>.Visit(MissingTypeInfo symbol) => Default(symbol);
+
+    string ISymbolVisitor<string>.Visit(ArrayTypeInfo symbol)
+        => Format(symbol.ItemType) + "[]";
+
+    string ISymbolVisitor<string>.Visit(UnionTypeInfo symbol)
+        => String.Join(" | ", symbol.Types.Select(t => Format(t)));
+
     string ISymbolVisitor<string>.Visit(UserTypeInfo symbol) => Default(symbol);
+
+    string ISymbolVisitor<string>.Visit(BoolTypeInfo symbol) => "bool";
+    string ISymbolVisitor<string>.Visit(CharTypeInfo symbol) => "char";
+    string ISymbolVisitor<string>.Visit(NumberTypeInfo symbol) => symbol.Kind.AsTypeName();
+    string ISymbolVisitor<string>.Visit(StringTypeInfo symbol) => "str";
+    string ISymbolVisitor<string>.Visit(UnknownTypeInfo symbol) => "???";
+    string ISymbolVisitor<string>.Visit(VoidTypeInfo symbol) => "void";
 
     string ISymbolVisitor<string>.Visit(EnumTypeInfo symbol)
         => symbol.Name;
