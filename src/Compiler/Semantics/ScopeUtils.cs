@@ -13,7 +13,7 @@ internal static class ScopeUtils
         var s = scope.ResolveQualified(name);
 
         if (s is null) {
-            Logger.Error(new UnknownSymbol {
+            Logger.Error(new UnknownSymbolError {
                 SymbolName = name.ToFullString(),
                 ExpectedKinds = [ SymbolUtils.GetKindString<T>() ],
                 Location = name.Location

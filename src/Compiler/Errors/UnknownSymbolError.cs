@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Lotus.Error;
 
-public class UnknownSymbol : LotusError, ILocalized, IContextualized
+public class UnknownSymbolError : LotusError, ILocalized, IContextualized
 {
     public required LocationRange Location { get; init; }
 
@@ -14,6 +14,6 @@ public class UnknownSymbol : LotusError, ILocalized, IContextualized
 
     public SymbolInfo? ContainingSymbol { get; init; }
 
-    public UnknownSymbol(ErrorArea area = ErrorArea.Binder, [CallerMemberName] string caller = "<unknown-caller>", [CallerFilePath] string callerPath = "")
+    public UnknownSymbolError(ErrorArea area = ErrorArea.Binder, [CallerMemberName] string caller = "<unknown-caller>", [CallerFilePath] string callerPath = "")
         : base(area, caller, callerPath) {}
 }

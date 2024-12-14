@@ -135,7 +135,7 @@ public static class Logger
             case DuplicateSymbol eDup:
                 markupBuilder.AppendLine(FormatDuplicateSymbol(eDup));
                 break;
-            case UnknownSymbol eUnk:
+            case UnknownSymbolError eUnk:
                 markupBuilder.Append(FormatUnknownSymbol(eUnk));
                 break;
             case UnexpectedSymbolKind eUnxKind:
@@ -399,7 +399,7 @@ public static class Logger
         }
     }
 
-    internal static MarkupBuilder FormatUnknownSymbol(UnknownSymbol unkError) {
+    internal static MarkupBuilder FormatUnknownSymbol(UnknownSymbolError unkError) {
         var sb = new MarkupBuilder();
 
         sb
