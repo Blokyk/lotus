@@ -1,6 +1,7 @@
 namespace Lotus.Semantics;
 
-public sealed class ArrayTypeInfo(TypeInfo itemType) : TypeInfo()
+public sealed class ArrayTypeInfo(TypeInfo itemType, SemanticUnit unit)
+    : TypeInfo(unit)
 {
     public TypeInfo ItemType { get; } = itemType;
 

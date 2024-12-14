@@ -1,8 +1,8 @@
 
 namespace Lotus.Semantics;
 
-public abstract class UserTypeInfo(string name, LocationRange loc)
-    : TypeInfo
+public abstract class UserTypeInfo(string name, LocationRange loc, SemanticUnit unit)
+    : TypeInfo(unit)
     , INamedSymbol
     , IMemberSymbol<NamespaceInfo?>
     , ILocalized

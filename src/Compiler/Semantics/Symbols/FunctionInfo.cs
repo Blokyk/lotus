@@ -2,8 +2,8 @@ using Lotus.Semantics.Binding;
 
 namespace Lotus.Semantics;
 
-public class FunctionInfo(string name, LocationRange loc)
-    : SymbolInfo // todo: should be 'TypedSymbolInfo' when we have a way to represent lambdas
+public class FunctionInfo(string name, LocationRange loc, SemanticUnit unit)
+    : SymbolInfo(unit) // todo: should be 'TypedSymbolInfo' when we have a way to represent lambdas
     , INamedSymbol
     , IMemberSymbol<NamespaceInfo>
     , IContainerSymbol<ParameterInfo>

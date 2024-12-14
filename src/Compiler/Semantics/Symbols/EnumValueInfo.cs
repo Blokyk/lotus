@@ -1,7 +1,7 @@
 namespace Lotus.Semantics;
 
-public class EnumValueInfo(string name, EnumTypeInfo fromEnum, LocationRange loc)
-    : SymbolInfo
+public class EnumValueInfo(string name, EnumTypeInfo fromEnum, LocationRange loc, SemanticUnit unit)
+    : SymbolInfo(unit)
     , INamedSymbol
     , IMemberSymbol<EnumTypeInfo>
     , ILocalized

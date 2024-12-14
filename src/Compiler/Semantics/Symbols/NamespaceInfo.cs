@@ -2,8 +2,8 @@ using Lotus.Semantics.Binding;
 
 namespace Lotus.Semantics;
 
-public class NamespaceInfo(string name)
-    : SymbolInfo
+public class NamespaceInfo(string name, SemanticUnit unit)
+    : SymbolInfo(unit)
     , INamedSymbol
     , IMemberSymbol<NamespaceInfo?>
     , IContainerSymbol<NamespaceInfo>

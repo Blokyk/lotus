@@ -1,7 +1,7 @@
 namespace Lotus.Semantics;
 
-public class LocalInfo(string name, TypeInfo type)
-    : TypedSymbolInfo
+public class LocalInfo(string name, TypeInfo type, LocationRange loc, SemanticUnit unit)
+    : TypedSymbolInfo(unit)
     , INamedSymbol
 {
     public string Name { get; } = name;

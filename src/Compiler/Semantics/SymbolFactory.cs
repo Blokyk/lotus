@@ -8,7 +8,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
     private readonly SemanticUnit _unit = unit;
 
     public EnumTypeInfo GetEmptyEnumSymbol(EnumNode node)
-        => new EnumTypeInfo(node.Name.TypeName.Value, node.Location);
+        => new(node.Name.TypeName.Value, node.Location, _unit);
 
     public void FillEnumSymbol(EnumTypeInfo enumType, EnumNode node, Scope _) {
         // todo: support enums with parents
@@ -16,9 +16,9 @@ internal sealed class SymbolFactory(SemanticUnit unit)
         foreach (var value in node.Values) {
             var valueNode = value switch {
                 IdentNode { Value: var rawName }
-                    => new EnumValueInfo(rawName, enumType, value.Location),
+                    => new EnumValueInfo(rawName, enumType, value.Location, _unit),
                 OperationNode { Operands: [IdentNode nameNode, NumberNode val] }
-                    => new EnumValueInfo(nameNode.Value, enumType, value.Location) {
+                    => new EnumValueInfo(nameNode.Value, enumType, value.Location, _unit) {
                         Value = (int)val.Value
                     },
                 _ => throw null! // values can only be simple names or assignement betwen name and const
@@ -30,7 +30,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
     }
 
     public StructTypeInfo GetEmptyStructSymbol(StructNode node)
-        => new(node.Name.Value, node.Location);
+        => new(node.Name.Value, node.Location, _unit);
 
     public void FillStructSymbol(StructTypeInfo structType, StructNode node, Scope scope) {
         foreach (var fieldDecl in node.Fields) {
@@ -44,7 +44,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
                 fieldType = Builtins.Unknown;
             }
 
-            var field = new FieldInfo(fieldDecl.Name.Value, fieldType, structType) {
+            var field = new FieldInfo(fieldDecl.Name.Value, fieldType, structType, _unit) {
                 IsValid = isValid
             };
 
@@ -54,7 +54,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
     }
 
     public FunctionInfo GetEmptyFunctionSymbol(FunctionDeclarationNode node)
-        => new(node.FuncName, node.Location);
+        => new(node.FuncName, node.Location, _unit);
 
     public void FillFunctionSymbol(
         FunctionInfo function,
@@ -84,7 +84,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
                 paramType = Builtins.Unknown;
             }
 
-            var param = new ParameterInfo(paramNode.Name.Value, paramType, function) {
+            var param = new ParameterInfo(paramNode.Name.Value, paramType, function, _unit) {
                 IsValid = isValid
             };
 

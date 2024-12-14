@@ -2,8 +2,8 @@ using Lotus.Semantics.Binding;
 
 namespace Lotus.Semantics;
 
-public sealed class StructTypeInfo(string name, LocationRange loc)
-    : UserTypeInfo(name, loc)
+public sealed class StructTypeInfo(string name, LocationRange loc, SemanticUnit unit)
+    : UserTypeInfo(name, loc, unit)
     , IContainerSymbol<FieldInfo>
     , IScope
 {

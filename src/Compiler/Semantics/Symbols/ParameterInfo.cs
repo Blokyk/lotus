@@ -1,7 +1,7 @@
 namespace Lotus.Semantics;
 
-public class ParameterInfo(string name, TypeInfo type, FunctionInfo containingFunc)
-    : TypedSymbolInfo
+public class ParameterInfo(string name, TypeInfo type, FunctionInfo containingFunc, SemanticUnit unit)
+    : TypedSymbolInfo(unit)
     , INamedSymbol
     , ILocalized
     , IMemberSymbol<FunctionInfo>

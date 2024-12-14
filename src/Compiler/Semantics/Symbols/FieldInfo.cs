@@ -1,7 +1,7 @@
 namespace Lotus.Semantics;
 
-public sealed class FieldInfo(string name, TypeInfo type, TypeInfo containingType)
-    : TypedSymbolInfo
+public sealed class FieldInfo(string name, TypeInfo type, TypeInfo containingType, SemanticUnit unit)
+    : TypedSymbolInfo(unit)
     , INamedSymbol
     , IMemberSymbol<StructTypeInfo>
 {
