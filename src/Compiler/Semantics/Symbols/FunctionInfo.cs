@@ -21,7 +21,7 @@ public class FunctionInfo(string name, LocationRange loc, SemanticUnit unit)
     private Dictionary<string, ParameterInfo> _params = [];
     public IReadOnlyCollection<ParameterInfo> Parameters => _params.Values;
 
-    public bool TryAdd(ParameterInfo param) {
+    internal bool TryAdd(ParameterInfo param) {
         if (_params.TryAdd(param.Name, param))
             return true;
 

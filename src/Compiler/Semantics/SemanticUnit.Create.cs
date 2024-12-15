@@ -18,7 +18,7 @@ public partial class SemanticUnit
             IsValid &= TryAddTree(tree);
     }
 
-    public bool TryAddTree(SyntaxTree tree) {
+    internal bool TryAddTree(SyntaxTree tree) {
         var ns = GetOrAddTreeNamespace(tree);
         Console.WriteLine($"Tree for file '{tree.Location.filename}' is in namespace {ns}");
 
