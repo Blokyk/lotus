@@ -6,7 +6,7 @@ struct foo {
     bar: std.test;
     baz: foo;
     i: int;
-    s: string;
+    s: str;
 }
 
 enum test {
