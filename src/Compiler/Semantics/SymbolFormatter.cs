@@ -15,6 +15,9 @@ public class SymbolFormatter : ISymbolVisitor<string>
     string ISymbolVisitor<string>.Visit(SymbolInfo symbol) => Default(symbol);
     string ISymbolVisitor<string>.Visit(TypedSymbolInfo symbol) => Default(symbol);
 
+    string ISymbolVisitor<string>.Visit(ErrorSymbolInfo symbol) => Default(symbol);
+    string ISymbolVisitor<string>.Visit(ErrorTypeInfo symbol) => Default(symbol);
+
     string ISymbolVisitor<string>.Visit(NamespaceInfo ns)
         => ns.ContainingNamespace switch {
             null => "<global>",
@@ -36,7 +39,6 @@ public class SymbolFormatter : ISymbolVisitor<string>
     string ISymbolVisitor<string>.Visit(CharTypeInfo symbol) => "char";
     string ISymbolVisitor<string>.Visit(NumberTypeInfo symbol) => symbol.Kind.AsTypeName();
     string ISymbolVisitor<string>.Visit(StringTypeInfo symbol) => "str";
-    string ISymbolVisitor<string>.Visit(UnknownTypeInfo symbol) => "???";
     string ISymbolVisitor<string>.Visit(VoidTypeInfo symbol) => "void";
 
     string ISymbolVisitor<string>.Visit(EnumTypeInfo symbol)

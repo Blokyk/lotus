@@ -41,7 +41,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             if (fieldType is null) {
                 structType.IsValid = false;
                 isValid = false;
-                fieldType = _unit.UnknownType;
+                fieldType = CreateFakeType(fieldDecl.Type);
             }
 
             var field = new FieldInfo(fieldDecl.Name.Value, fieldType, structType, _unit) {
@@ -65,7 +65,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             var returnType = scope.ResolveQualified<TypeInfo>(node.ReturnType);
             if (returnType is null) {
                 function.IsValid = false;
-                returnType = _unit.UnknownType;
+                returnType = CreateFakeType(node.ReturnType);
             }
 
             function.ReturnType = returnType;
@@ -81,7 +81,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             if (paramType is null) {
                 function.IsValid = false;
                 isValid = false;
-                paramType = _unit.UnknownType;
+                paramType = CreateFakeType(paramNode.Type);
             }
 
             var param = new ParameterInfo(paramNode.Name.Value, paramType, function, paramNode.Location, _unit) {
@@ -91,5 +91,34 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             if (!function.TryAdd(param))
                 function.IsValid = false;
         }
+    }
+
+    public ErrorTypeInfo CreateFakeType(string name)
+        => new(name, _unit);
+    public ErrorTypeInfo CreateFakeType(NameNode name)
+        => CreateFakeType(name.ToFullString());
+
+    public ErrorTypeInfo CreateFakeType(NameNode name, Scope scope) {
+        if (name is IdentNode { Value: var typeName })
+            return new(typeName, _unit);
+
+        var nameParts = ((FullNameNode)name).Parts;
+
+        SymbolInfo container = new ErrorSymbolInfo(nameParts[0], _unit);
+        var currScope = scope;
+
+        foreach (var part in nameParts.SkipLast(1)) { // don't try to resolve the type name, obviously
+            var nextContainer = currScope.Get(part);
+
+            if (scope.Get(part) is NamespaceInfo ns)
+                nextContainer = ns;
+            else
+                nextContainer = new ErrorSymbolInfo(part, _unit) { ContainingSymbol = container };
+
+            container = nextContainer;
+            currScope = Scope.From((container as IScope)!);
+        }
+
+        return new ErrorTypeInfo(nameParts[^1], _unit) { ContainingSymbol = container };
     }
 }

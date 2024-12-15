@@ -16,7 +16,7 @@ public class FunctionInfo(string name, LocationRange loc, SemanticUnit unit)
 
     public NamespaceInfo? ContainingNamespace { get; set; }
 
-    public TypeInfo ReturnType { get; set; } = unit.UnknownType;
+    public TypeInfo? ReturnType { get; set; }
 
     private Dictionary<string, ParameterInfo> _params = [];
     public IReadOnlyCollection<ParameterInfo> Parameters => _params.Values;

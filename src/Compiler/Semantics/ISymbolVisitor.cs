@@ -4,6 +4,9 @@ public interface ISymbolVisitor<out T>
 {
     T Visit(SymbolInfo symbol);
 
+    T Visit(ErrorSymbolInfo symbol);
+    T Visit(ErrorTypeInfo symbol);
+
     T Visit(NamespaceInfo symbol);
 
     T Visit(TypedSymbolInfo symbol);
@@ -17,7 +20,6 @@ public interface ISymbolVisitor<out T>
     internal T Visit(CharTypeInfo symbol);
     internal T Visit(NumberTypeInfo symbol);
     internal T Visit(StringTypeInfo symbol);
-    internal T Visit(UnknownTypeInfo symbol);
     internal T Visit(VoidTypeInfo symbol);
 
     T Visit(EnumTypeInfo symbol);

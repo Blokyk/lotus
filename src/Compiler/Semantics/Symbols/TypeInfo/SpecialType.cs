@@ -2,7 +2,6 @@ namespace Lotus.Semantics;
 
 public enum SpecialType : byte {
     None,
-    Unknown,
     Void,
     Bool,
     Char,
@@ -19,7 +18,6 @@ public static class SpecialTypeUtils
 {
     public static TypeInfo? GetSpecialType(this SemanticUnit unit, SpecialType type)
         => type switch {
-            SpecialType.Unknown => unit.UnknownType,
             SpecialType.Void => unit.VoidType,
             SpecialType.Bool => unit.BoolType,
             SpecialType.Char => unit.CharType,

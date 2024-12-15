@@ -26,6 +26,8 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
     }
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(SymbolInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ErrorSymbolInfo symbol) => Default(symbol);
+
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(TypedSymbolInfo symbol) => Default(symbol);
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(NamespaceInfo ns) {
@@ -56,14 +58,13 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ArrayTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UnionTypeInfo symbol) => Default(symbol);
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(MissingTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ErrorTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UserTypeInfo symbol) => Default(symbol);
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(BoolTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(CharTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(NumberTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(StringTypeInfo symbol) => Default(symbol);
-    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UnknownTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(VoidTypeInfo symbol) => Default(symbol);
 
 
@@ -118,12 +119,17 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
                     Write(param);
             }
         }
-        _writer.Write("): " + SymbolFormatter.Format(symbol.ReturnType));
+
+        _writer.Write("): ");
+
+        ArgumentNullException.ThrowIfNull(symbol.ReturnType);
+        _writer.Write(SymbolFormatter.Format(symbol.ReturnType));
 
         _writer.WriteLine();
 
         return _writer;
     }
+
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ParameterInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(LocalInfo symbol) => Default(symbol);
 }
