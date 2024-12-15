@@ -1,4 +1,5 @@
 using Lotus.Extras.Graphs;
+using Lotus.Semantics;
 
 namespace Lotus.Extras;
 
@@ -37,4 +38,7 @@ public static class ExtraUtils
                                     "There's no ToGraphNode() method for type " + node.GetType().GetDisplayName() + " or any of its base types"
                                 )
         };
+
+    public static string PrintDeclarations(SemanticUnit unit)
+        => SemanticVisualizer.Print(unit);
 }

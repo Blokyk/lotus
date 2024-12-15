@@ -1,5 +1,4 @@
 using Lotus.Semantics.Binding;
-using Lotus.Syntax;
 
 namespace Lotus.Semantics;
 
@@ -14,6 +13,4 @@ public partial class SemanticUnit
     public IEnumerable<TypeInfo> GlobalTypes => Global.Types;
 
     public bool IsValid { get; } = true;
-
-    public override string ToString() => SemanticVisualizer.Format(Global);
 }

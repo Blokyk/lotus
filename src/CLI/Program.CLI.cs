@@ -137,7 +137,7 @@ partial class Program
             return Task.FromResult(1);
         }
 
-        Console.WriteLine(sem);
+        Console.WriteLine(ExtraUtils.PrintDeclarations(sem));
 
         return Task.FromResult(0);
     }
