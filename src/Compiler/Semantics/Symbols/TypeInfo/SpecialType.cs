@@ -16,18 +16,14 @@ public enum SpecialType : byte {
 
 public static class SpecialTypeUtils
 {
-    public static TypeInfo? GetSpecialType(this SemanticUnit unit, SpecialType type)
-        => type switch {
-            SpecialType.Void => unit.VoidType,
-            SpecialType.Bool => unit.BoolType,
-            SpecialType.Char => unit.CharType,
-            SpecialType.String => unit.StringType,
-            SpecialType.Int => unit.IntType,
-            SpecialType.UInt => unit.UIntType,
-            SpecialType.Long => unit.LongType,
-            SpecialType.ULong => unit.ULongType,
-            SpecialType.Float => unit.FloatType,
-            SpecialType.Double => unit.DoubleType,
-            _ => null,
+    public static SpecialType AsSpecialType(this NumberKind kind)
+        => kind switch {
+            NumberKind.Int => SpecialType.Int,
+            NumberKind.UInt => SpecialType.UInt,
+            NumberKind.Long => SpecialType.Long,
+            NumberKind.ULong => SpecialType.ULong,
+            NumberKind.Float => SpecialType.Float,
+            NumberKind.Double => SpecialType.Double,
+            _ => throw new ArgumentOutOfRangeException($"Number kind '{kind}' does not have a corresponding type")
         };
 }

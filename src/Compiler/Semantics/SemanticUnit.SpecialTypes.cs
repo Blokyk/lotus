@@ -42,4 +42,30 @@ public partial class SemanticUnit
         global.TryAdd(_float);
         global.TryAdd(_double);
     }
+
+    public TypeInfo? GetSpecialType(SpecialType type)
+        => type switch {
+            SpecialType.Void => VoidType,
+            SpecialType.Bool => BoolType,
+            SpecialType.Char => CharType,
+            SpecialType.String => StringType,
+            SpecialType.Int => IntType,
+            SpecialType.UInt => UIntType,
+            SpecialType.Long => LongType,
+            SpecialType.ULong => ULongType,
+            SpecialType.Float => FloatType,
+            SpecialType.Double => DoubleType,
+            _ => null,
+        };
+
+    public TypeInfo GetNumericType(NumberKind kind)
+        => kind switch {
+            NumberKind.Int => IntType,
+            NumberKind.Long => LongType,
+            NumberKind.Float => FloatType,
+            NumberKind.Double => DoubleType,
+            NumberKind.UInt => UIntType,
+            NumberKind.ULong => ULongType,
+            _ => throw new ArgumentOutOfRangeException($"Number kind '{kind}' does not have a corresponding type")
+        };
 }
