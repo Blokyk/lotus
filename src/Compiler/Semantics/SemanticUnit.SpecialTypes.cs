@@ -2,10 +2,8 @@ namespace Lotus.Semantics;
 
 public partial class SemanticUnit
 {
-    private TypeInfo _unknown;
     private UserTypeInfo _void, _bool, _char, _string, _int, _uint, _long, _ulong, _float, _double;
 
-    public TypeInfo UnknownType => _unknown;
     public TypeInfo VoidType => _void;
     public TypeInfo BoolType => _bool;
     public TypeInfo CharType => _char;
@@ -17,12 +15,11 @@ public partial class SemanticUnit
     public TypeInfo FloatType => _float;
     public TypeInfo DoubleType => _double;
 
-    [MemberNotNull(nameof(_unknown), nameof(_void), nameof(_bool),
-        nameof(_char), nameof(_string), nameof(_int), nameof(_uint),
+    [MemberNotNull(
+        nameof(_void), nameof(_bool), nameof(_char),
+        nameof(_string), nameof(_int), nameof(_uint),
         nameof(_long), nameof(_ulong), nameof(_float), nameof(_double))]
     private void InitAndAddSpecialTypes(NamespaceInfo global) {
-        _unknown = new UnknownTypeInfo(this);
-
         _void = new VoidTypeInfo(this);
         _bool = new BoolTypeInfo(this);
         _char = new CharTypeInfo(this);
