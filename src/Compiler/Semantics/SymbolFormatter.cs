@@ -33,6 +33,9 @@ public class SymbolFormatter : ISymbolVisitor<string>
     string ISymbolVisitor<string>.Visit(UnionTypeInfo symbol)
         => String.Join(" | ", symbol.Types.Select(t => Format(t)));
 
+    string ISymbolVisitor<string>.Visit(TupleTypeInfo symbol)
+        => "(" + String.Join(", ", symbol.Types.Select(t => Format(t))) + ")";
+
     string ISymbolVisitor<string>.Visit(UserTypeInfo symbol) => Default(symbol);
 
     string ISymbolVisitor<string>.Visit(BoolTypeInfo symbol) => "bool";

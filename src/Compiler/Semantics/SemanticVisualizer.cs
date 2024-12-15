@@ -59,6 +59,7 @@ internal class SemanticVisualizer : ISymbolVisitor<IndentedTextWriter>
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ArrayTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UnionTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(ErrorTypeInfo symbol) => Default(symbol);
+    IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(TupleTypeInfo symbol) => Default(symbol);
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(UserTypeInfo symbol) => Default(symbol);
 
     IndentedTextWriter ISymbolVisitor<IndentedTextWriter>.Visit(BoolTypeInfo symbol) => Default(symbol);

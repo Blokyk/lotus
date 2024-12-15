@@ -14,6 +14,7 @@ public interface ISymbolVisitor<out T>
     T Visit(TypeInfo symbol);
     T Visit(ArrayTypeInfo symbol);
     T Visit(UnionTypeInfo symbol);
+    T Visit(TupleTypeInfo symbol);
     T Visit(UserTypeInfo symbol);
 
     internal T Visit(BoolTypeInfo symbol);
