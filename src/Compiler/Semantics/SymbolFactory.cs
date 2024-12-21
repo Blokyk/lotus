@@ -41,7 +41,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             if (fieldType is null) {
                 structType.IsValid = false;
                 isValid = false;
-                fieldType = CreateFakeType(fieldDecl.Type);
+                fieldType = CreateMissingType(fieldDecl.Type, scope);
             }
 
             var field = new FieldInfo(fieldDecl.Name.Value, fieldType, structType, _unit) {
@@ -65,7 +65,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             var returnType = scope.ResolveQualified<TypeInfo>(node.ReturnType);
             if (returnType is null) {
                 function.IsValid = false;
-                returnType = CreateFakeType(node.ReturnType);
+                returnType = CreateMissingType(node.ReturnType, scope);
             }
 
             function.ReturnType = returnType;
@@ -81,7 +81,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             if (paramType is null) {
                 function.IsValid = false;
                 isValid = false;
-                paramType = CreateFakeType(paramNode.Type);
+                paramType = CreateMissingType(paramNode.Type, scope);
             }
 
             var param = new ParameterInfo(paramNode.Name.Value, paramType, function, paramNode.Location, _unit) {
@@ -93,12 +93,12 @@ internal sealed class SymbolFactory(SemanticUnit unit)
         }
     }
 
-    public ErrorTypeInfo CreateFakeType(string name)
+    public ErrorTypeInfo CreateMissingType(string name)
         => new(name, _unit);
-    public ErrorTypeInfo CreateFakeType(NameNode name)
-        => CreateFakeType(name.ToFullString());
+    public ErrorTypeInfo CreateMissingType(NameNode name)
+        => CreateMissingType(name.ToFullString());
 
-    public ErrorTypeInfo CreateFakeType(NameNode name, Scope scope) {
+    public ErrorTypeInfo CreateMissingType(NameNode name, Scope scope) {
         if (name is IdentNode { Value: var typeName })
             return new(typeName, _unit);
 
