@@ -5,10 +5,10 @@ namespace Lotus.Semantics;
 
 public partial class SemanticUnit
 {
-    private readonly SymbolFactory _factory;
+    internal SymbolFactory Factory { get; set; }
 
     private SemanticUnit() {
-        _factory = new(this);
+        Factory = new(this);
         Global = new NamespaceInfo("<global>", this);
         InitAndAddSpecialTypes(Global);
     }
@@ -45,26 +45,26 @@ public partial class SemanticUnit
         foreach (var node in tree.TopNodes) {
             switch (node) {
                 case EnumNode enumNode:
-                    var enumType = _factory.GetEmptyEnumSymbol(enumNode);
+                    var enumType = Factory.GetEmptyEnumSymbol(enumNode);
                     isValid &= ns.TryAdd(enumType);
                     fillingActions.Add(scope => {
-                        _factory.FillEnumSymbol(enumType, enumNode, scope);
+                        Factory.FillEnumSymbol(enumType, enumNode, scope);
                         return enumType.IsValid;
                     });
                     break;
                 case StructNode structNode:
-                    var structType = _factory.GetEmptyStructSymbol(structNode);
+                    var structType = Factory.GetEmptyStructSymbol(structNode);
                     isValid &= ns.TryAdd(structType);
                     fillingActions.Add(scope => {
-                        _factory.FillStructSymbol(structType, structNode, scope);
+                        Factory.FillStructSymbol(structType, structNode, scope);
                         return structType.IsValid;
                     });
                     break;
                 case FunctionDeclarationNode funcNode:
-                    var func = _factory.GetEmptyFunctionSymbol(funcNode);
+                    var func = Factory.GetEmptyFunctionSymbol(funcNode);
                     isValid &= ns.TryAdd(func);
                     fillingActions.Add(scope => {
-                        _factory.FillFunctionSymbol(func, funcNode, scope);
+                        Factory.FillFunctionSymbol(func, funcNode, scope);
                         return func.IsValid;
                     });
                     break;
