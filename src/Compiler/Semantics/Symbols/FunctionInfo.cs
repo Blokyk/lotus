@@ -36,7 +36,7 @@ public class FunctionInfo(string name, LocationRange loc, SemanticUnit unit)
     }
 
     private MethodScope? _scope = null;
-    Scope IScope.Scope => _scope ?? new(this);
+    Scope IScope.Scope => _scope ??= new(this);
     // todo: split scope for signature and body (locals can shadow params, but params can't have same name)
     private sealed class MethodScope(FunctionInfo @this) : Scope {
         public override SymbolInfo? Get(string name) {
