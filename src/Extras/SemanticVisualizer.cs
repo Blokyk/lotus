@@ -109,10 +109,7 @@ internal class SemanticVisualizer
             }
         }
 
-        _writer.Write("): ");
-
-        ArgumentNullException.ThrowIfNull(symbol.ReturnType);
-        _writer.Write(SymbolFormatter.Format(symbol.ReturnType));
+        _writer.Write("): " + SymbolFormatter.Format(symbol.ReturnType));
 
         _writer.WriteLine();
     }
