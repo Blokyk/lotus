@@ -19,8 +19,8 @@ internal abstract class Scope : IScope
 
     Scope IScope.Scope => this;
 
-    public SymbolInfo? ResolveQualified(IEnumerable<string> parts) {
-        SymbolInfo? currSymbol = null;
+    public virtual SymbolInfo? ResolveQualified(IEnumerable<string> parts) {
+        var currSymbol = default(SymbolInfo);
 
         var currScope = this;
         foreach (var part in parts) {
