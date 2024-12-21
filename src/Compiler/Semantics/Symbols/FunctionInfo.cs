@@ -18,7 +18,7 @@ public class FunctionInfo(string name, LocationRange loc, SemanticUnit unit)
 
     public TypeInfo ReturnType { get; set; } = new ErrorTypeInfo("<" + name + "$type>", unit);
 
-    private Dictionary<string, ParameterInfo> _params = [];
+    private readonly Dictionary<string, ParameterInfo> _params = [];
     public IReadOnlyCollection<ParameterInfo> Parameters => _params.Values;
 
     internal bool TryAdd(ParameterInfo param) {

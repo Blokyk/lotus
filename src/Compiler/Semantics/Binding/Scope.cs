@@ -1,5 +1,3 @@
-using Lotus.Syntax;
-
 namespace Lotus.Semantics.Binding;
 
 internal interface IScope {
@@ -8,6 +6,9 @@ internal interface IScope {
 
 internal abstract class Scope : IScope
 {
+    // todo: add SemUnit field to Scope
+    //public abstract SemanticUnit Unit { get; }
+
     public static readonly Scope Empty = new EmptyScope();
     private sealed class EmptyScope : Scope {
         public override SymbolInfo? Get(string _) => null;
