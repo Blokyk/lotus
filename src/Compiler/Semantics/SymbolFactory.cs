@@ -44,21 +44,25 @@ internal sealed class SymbolFactory(SemanticUnit unit)
                 fieldType = CreateMissingType(fieldDecl.Type, scope);
             }
 
-            var field = new FieldInfo(fieldDecl.Name.Value, fieldType, structType, _unit) {
-                IsValid = isValid
-            };
+            var field = new FieldInfo(
+                fieldDecl.Name.Value,
+                fieldType,
+                structType,
+                fieldDecl.Location,
+                _unit
+            ) { IsValid = isValid };
 
             if (!structType.TryAddField(field))
                 structType.IsValid = false;
         }
     }
 
-    public FunctionInfo GetEmptyFunctionSymbol(FunctionDeclarationNode node)
-        => new(node.FuncName, node.Location, _unit);
+    public FunctionInfo GetEmptyFunctionSymbol(FunctionHeaderNode node)
+        => new(node.Name, node.Location, _unit);
 
     public void FillFunctionSymbol(
         FunctionInfo function,
-        FunctionDeclarationNode node,
+        FunctionHeaderNode node,
         Scope scope
     ) {
         if (node.HasReturnType) {
@@ -73,7 +77,7 @@ internal sealed class SymbolFactory(SemanticUnit unit)
             function.ReturnType = _unit.VoidType;
         }
 
-        foreach (var paramNode in node.ParamList) {
+        foreach (var paramNode in node.Parameters) {
             bool isValid = true;
 
             var paramType = scope.ResolveQualified<TypeInfo>(paramNode.Type);

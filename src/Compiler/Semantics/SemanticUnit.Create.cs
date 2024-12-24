@@ -60,11 +60,11 @@ public partial class SemanticUnit
                         return structType.IsValid;
                     });
                     break;
-                case FunctionDeclarationNode funcNode:
-                    var func = Factory.GetEmptyFunctionSymbol(funcNode);
+                case FunctionDefinitionNode funcNode:
+                    var func = Factory.GetEmptyFunctionSymbol(funcNode.Header);
                     isValid &= ns.TryAdd(func);
                     fillingActions.Add(scope => {
-                        Factory.FillFunctionSymbol(func, funcNode, scope);
+                        Factory.FillFunctionSymbol(func, funcNode.Header, scope);
                         return func.IsValid;
                     });
                     break;
