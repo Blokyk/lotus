@@ -9,7 +9,7 @@ public partial class SemanticUnit
 
     private SemanticUnit() {
         Factory = new(this);
-        Global = new NamespaceInfo("<global>", this);
+        Global = new NamespaceInfo("<global>", this) { IsTopNamespace = true };
         InitAndAddSpecialTypes(Global);
     }
 
@@ -60,17 +60,26 @@ public partial class SemanticUnit
                         return structType.IsValid;
                     });
                     break;
-                case FunctionDefinitionNode funcNode:
-                    var func = Factory.GetEmptyFunctionSymbol(funcNode.Header);
+                case FunctionDefinitionNode funcDefNode:
+                    var func = Factory.GetEmptyFunctionSymbol(funcDefNode.Header);
                     isValid &= ns.TryAdd(func);
                     fillingActions.Add(scope => {
-                        Factory.FillFunctionSymbol(func, funcNode.Header, scope);
+                        Factory.FillFunctionSymbol(func, funcDefNode.Header, scope);
+                        return func.IsValid;
+                    });
+                    break;
+                case FunctionHeaderNode funcHeaderNode:
+                    func = Factory.GetEmptyFunctionSymbol(funcHeaderNode);
+                    isValid &= ns.TryAdd(func);
+                    fillingActions.Add(scope => {
+                        Factory.FillFunctionSymbol(func, funcHeaderNode, scope);
                         return func.IsValid;
                     });
                     break;
                 default:
                     // the other nodes are just imports, usings, and namespaces
                     // so we can just ignore those for now
+                    Debug.Assert(node is ImportNode or NamespaceNode or UsingNode);
                     continue;
             }
         }

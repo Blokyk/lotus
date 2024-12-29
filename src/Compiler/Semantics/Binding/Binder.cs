@@ -3,7 +3,7 @@ using Lotus.Syntax.Visitors;
 
 namespace Lotus.Semantics.Binding;
 
-internal class Binder : IValueVisitor<Expression>
+internal partial class Binder : IValueVisitor<Expression>
 {
     private SemanticUnit _unit;
     private Scope _scope;
@@ -56,30 +56,48 @@ internal class Binder : IValueVisitor<Expression>
     Expression IValueVisitor<Expression>.Visit(FullNameNode node) {
         var nameParts = ImmutableArray.CreateBuilder<QualifiedName.Part>();
 
-        var currSymbol = default(SymbolInfo);
+        var lastSymbol = default(SymbolInfo);
 
         var currScope = _scope;
         foreach (var partToken in node.Parts) {
             var partName = partToken.Representation;
 
-            currSymbol = currScope.Get(partName)
-                      ?? _unit.Factory.CreateMissingSymbol(partName);
+            var currSymbol = currScope.Get(partName);
+
+            if (currSymbol is null) {
+                var errSymbol = _unit.Factory.CreateMissingSymbol(partName);
+                errSymbol.ContainingSymbol = lastSymbol;
+
+                currSymbol = errSymbol;
+            }
 
             nameParts.Add(new QualifiedName.Part(partName, currSymbol));
 
             Debug.Assert(currSymbol is IScope);
             currScope = Scope.From((IScope)currSymbol);
+
+            lastSymbol = currSymbol;
         }
 
         return new QualifiedName(node, nameParts.DrainToImmutable());
     }
 
-    Expression IValueVisitor<Expression>.Visit(FunctionCallNode node) => throw new NotImplementedException();
+    Expression IValueVisitor<Expression>.Visit(FunctionCallNode node) {
+        var funcExpr = Bind(node.Name);
+
+        if (funcExpr is not QualifiedName { Symbol: FunctionInfo func })
+            throw new NotImplementedException("todo: error for non-func call");
+
+        var initialArgs = node.ArgList.Select(Bind).ToImmutableArray();
+
+        if (!TryBindAndConvertArgs(func, initialArgs, out var finalArgs))
+            throw new NotImplementedException("todo: error for type mismatch in function call");
+
+        return new FunctionCall(node, func, finalArgs);
+    }
 
     Expression IValueVisitor<Expression>.Visit(ObjectCreationNode node)
         => Bind(node.Invocation);
-        // => _scope.ResolveQualified<Expression>((NameNode)node.TypeName)
-        //         ?? _unit.Factory.CreateMissingType((NameNode)node.TypeName, _scope);
 
     FunctionInfo? GetBinaryOpBackingFunc(TypeInfo t1, TypeInfo t2, OperationType type) {
         throw new NotImplementedException();

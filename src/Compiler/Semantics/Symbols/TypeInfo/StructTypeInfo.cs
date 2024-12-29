@@ -18,10 +18,26 @@ public sealed class StructTypeInfo(string name, LocationRange loc, SemanticUnit 
             TargetSymbol = field,
             ExistingSymbol = _fields[field.Name],
             ContainingSymbol = this,
-            In = "struct declaration"
+            In = "a struct declaration"
         });
 
         return false;
+    }
+
+    private FunctionInfo? _ctor = null;
+    public FunctionInfo Constructor {
+        get {
+            if (_ctor is null) {
+                _ctor = new FunctionInfo(Name, Location, Unit) {
+                    ReturnType = this,
+                };
+
+                foreach (var field in Fields)
+                    _ctor.TryAdd(new(field.Name, field.Type, _ctor, field.Location, Unit));
+            }
+
+            return _ctor;
+        }
     }
 
     private StructScope? _scope = null;

@@ -55,6 +55,7 @@ public partial class SemanticUnit
             SpecialType.ULong => ULongType,
             SpecialType.Float => FloatType,
             SpecialType.Double => DoubleType,
+            // Error+None
             _ => null,
         };
 

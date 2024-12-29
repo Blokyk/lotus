@@ -5,20 +5,18 @@ namespace Lotus.Semantics;
 public class NamespaceInfo(string name, SemanticUnit unit)
     : SymbolInfo(unit)
     , INamedSymbol
-    , IMemberSymbol<NamespaceInfo?>
+    , IMemberSymbol<NamespaceInfo>
     , IContainerSymbol<NamespaceInfo>
     , IContainerSymbol<UserTypeInfo>
     , IScope
 {
     public string Name { get; } = name;
 
-    [MemberNotNullWhen(false, nameof(ContainingNamespace))]
-    public bool IsTopNamespace => ContainingNamespace == null;
+    public bool IsTopNamespace { get; internal init; }
 
     private Dictionary<string, NamespaceInfo> _namespaces = [];
     public IEnumerable<NamespaceInfo> Namespaces => _namespaces.Values;
     internal bool TryAdd(NamespaceInfo ns) {
-        Debug.Assert(ns.ContainingNamespace is null);
         ns.ContainingNamespace = this;
         var couldAdd = _namespaces.TryAdd(ns.Name, ns);
         // fixme: check name doesn't clash with types or funcs
@@ -29,7 +27,6 @@ public class NamespaceInfo(string name, SemanticUnit unit)
     private Dictionary<string, UserTypeInfo> _types = [];
     public IEnumerable<UserTypeInfo> Types => _types.Values;
     internal bool TryAdd(UserTypeInfo type) {
-        Debug.Assert(type.ContainingNamespace is null);
         type.ContainingNamespace = this;
 
         if (_types.TryAdd(type.Name, type))
@@ -49,7 +46,6 @@ public class NamespaceInfo(string name, SemanticUnit unit)
     private Dictionary<string, FunctionInfo> _funcs = [];
     public IEnumerable<FunctionInfo> Functions => _funcs.Values;
     internal bool TryAdd(FunctionInfo func) {
-        Debug.Assert(func.ContainingNamespace is null);
         func.ContainingNamespace = this;
 
         if (_funcs.TryAdd(func.Name, func))
@@ -66,7 +62,7 @@ public class NamespaceInfo(string name, SemanticUnit unit)
         return false;
     }
 
-    public NamespaceInfo? ContainingNamespace { get; set; } = null;
+    public NamespaceInfo ContainingNamespace { get; set; } = unit.Global;
 
     private NamespaceScope? _scope = null;
     Scope IScope.Scope => _scope ?? new(this);
@@ -83,7 +79,7 @@ public class NamespaceInfo(string name, SemanticUnit unit)
 
     IEnumerable<NamespaceInfo> IContainerSymbol<NamespaceInfo>.Children() => Namespaces;
     IEnumerable<UserTypeInfo> IContainerSymbol<UserTypeInfo>.Children() => Types;
-    NamespaceInfo? IMemberSymbol<NamespaceInfo?>.ContainingSymbol => ContainingNamespace;
+    NamespaceInfo IMemberSymbol<NamespaceInfo>.ContainingSymbol => ContainingNamespace;
 
     public override string ToString() {
         if (IsTopNamespace)

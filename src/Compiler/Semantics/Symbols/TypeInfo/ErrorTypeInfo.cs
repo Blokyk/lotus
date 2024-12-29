@@ -9,6 +9,8 @@ public sealed class ErrorTypeInfo(string name, SemanticUnit unit)
 {
     public string Name => name;
 
+    public override SpecialType SpecialType => SpecialType.Error;
+
     public SymbolInfo? ContainingSymbol { get; set; }
 
     private readonly ErrorScope _scope = new(unit);

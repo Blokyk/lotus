@@ -2,6 +2,7 @@ namespace Lotus.Semantics;
 
 public enum SpecialType : byte {
     None,
+    Error,
     Void,
     Bool,
     Char,

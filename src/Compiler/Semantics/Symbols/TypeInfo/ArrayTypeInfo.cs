@@ -19,7 +19,7 @@ public sealed class ArrayTypeInfo(TypeInfo itemType, SemanticUnit unit)
             this.@this = @this;
             var intType = @this.Unit.IntType;
 
-            _length = new FieldInfo("length", intType, @this, @this.Unit);
+            _length = new FieldInfo("length", intType, @this, LocationRange.NULL, @this.Unit);
         }
         public override SymbolInfo? Get(string name)
             => name == "length"
